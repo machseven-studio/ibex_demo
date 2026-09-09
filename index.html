@@ -261,6 +261,7 @@
             #mainContent { padding: 1rem !important; margin-left: 0 !important; }
 
             .branch-selector-stack { max-width: 140px; }
+            .branch-selector-stack button.whitespace-nowrap { white-space: normal !important; line-height: 1.25; }
         }
 
         .head-chevron { transition: transform .15s ease; }
@@ -540,8 +541,8 @@
 
     <!-- MODALS (unchanged) -->
     <!-- Rename Institute Modal -->
-    <div id="renameInstituteModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50">
-        <div class="glass-panel border gold-border p-8 rounded-2xl w-full max-w-md shadow-2xl">
+    <div id="renameInstituteModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="glass-panel border gold-border p-5 sm:p-8 rounded-2xl w-full max-w-md max-h-[88vh] overflow-y-auto shadow-2xl">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-extrabold gold-gradient-text uppercase tracking-wider">Rename Institute</h3>
                 <button onclick="closeRenameInstituteModal()" class="text-gray-400 hover:text-white text-lg font-bold">✕</button>
@@ -555,8 +556,8 @@
     </div>
 
     <!-- Add Staff User Modal -->
-    <div id="userModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50">
-        <div class="glass-panel border gold-border p-8 rounded-2xl w-full max-w-lg shadow-2xl">
+    <div id="userModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="glass-panel border gold-border p-5 sm:p-8 rounded-2xl w-full max-w-lg max-h-[88vh] overflow-y-auto shadow-2xl">
             <div class="flex justify-between items-center mb-6">
                 <h3 id="userModalTitle" class="text-lg font-extrabold gold-gradient-text uppercase tracking-wider">Add User</h3>
                 <button onclick="closeUserModal()" class="text-gray-400 hover:text-white text-lg font-bold">✕</button>
@@ -590,8 +591,8 @@
     </div>
 
     <!-- Bulk Import Modal -->
-    <div id="bulkImportModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50">
-        <div class="glass-panel border gold-border p-8 rounded-2xl w-full max-w-lg shadow-2xl">
+    <div id="bulkImportModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="glass-panel border gold-border p-5 sm:p-8 rounded-2xl w-full max-w-lg max-h-[88vh] overflow-y-auto shadow-2xl">
             <div class="flex justify-between items-center mb-6">
                 <h3 id="bulkImportTitle" class="text-lg font-extrabold gold-gradient-text uppercase tracking-wider">Bulk Import via Document</h3>
                 <button onclick="closeBulkImportModal()" class="text-gray-400 hover:text-white text-lg font-bold">✕</button>
@@ -607,8 +608,8 @@
     </div>
 
     <!-- Generic Add Record Modal -->
-    <div id="recordModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50">
-        <div class="glass-panel border gold-border p-8 rounded-2xl w-full max-w-lg shadow-2xl">
+    <div id="recordModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="glass-panel border gold-border p-5 sm:p-8 rounded-2xl w-full max-w-lg max-h-[88vh] overflow-y-auto shadow-2xl">
             <div class="flex justify-between items-center mb-6">
                 <h3 id="modalTitle" class="text-lg font-extrabold gold-gradient-text uppercase tracking-wider">Add Record</h3>
                 <button onclick="closeRecordModal()" class="text-gray-400 hover:text-white text-lg font-bold">✕</button>
@@ -626,8 +627,8 @@
     </div>
 
     <!-- Timetable Slot Edit Modal -->
-    <div id="timetableSlotEditModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50">
-        <div class="glass-panel border gold-border p-8 rounded-2xl w-full max-w-md shadow-2xl">
+    <div id="timetableSlotEditModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="glass-panel border gold-border p-5 sm:p-8 rounded-2xl w-full max-w-md max-h-[88vh] overflow-y-auto shadow-2xl">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-sm font-extrabold gold-gradient-text uppercase tracking-wider">Edit Timetable Slot</h3>
                 <button onclick="closeTimetableSlotEdit()" class="text-gray-400 hover:text-white text-lg font-bold">✕</button>
@@ -648,8 +649,8 @@
     </div>
 
     <!-- Add Branch Modal -->
-    <div id="branchModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50">
-        <div class="glass-panel border gold-border p-8 rounded-2xl w-full max-w-md shadow-2xl">
+    <div id="branchModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="glass-panel border gold-border p-5 sm:p-8 rounded-2xl w-full max-w-md max-h-[88vh] overflow-y-auto shadow-2xl">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-extrabold gold-gradient-text uppercase tracking-wider">Add Branch</h3>
                 <button onclick="closeAddBranchModal()" class="text-gray-400 hover:text-white text-lg font-bold">✕</button>
@@ -1387,18 +1388,18 @@
             const canWrite = myPermission !== 'read_only' && !isGlobalView;
             container.innerHTML = `
                 <div class="space-y-6">
-                    <div class="flex justify-between items-center">
+                    <div class="flex justify-between items-center flex-wrap gap-4">
                         <div>
                             <h2 class="text-2xl font-black uppercase gold-gradient-text tracking-wide">${moduleName} Department</h2>
                             <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest">Scope Synchronized</p>
                         </div>
                         ${canWrite ? `
-                        <div class="flex items-center space-x-3">
+                        <div class="flex items-center flex-wrap gap-3">
                             <button onclick="openRecordModal('${moduleName}')" class="gold-bg hover:opacity-95 text-black font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">+ Add New Record</button>
                             <button onclick="openBulkImportModal('${moduleName}')" class="bg-[#141414] hover:bg-[#1f1f1f] gold-gradient-text border gold-border font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">+ Add Document</button>
                         </div>` : ''}
                     </div>
-                    <div class="flex items-center justify-end space-x-3">
+                    <div class="flex items-center justify-end flex-wrap gap-3">
                         <button onclick="exportModulePDF('${moduleName}')" class="bg-[#141414] hover:bg-[#1f1f1f] gold-gradient-text border gold-border font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">Export PDF</button>
                         <button onclick="exportModuleExcel('${moduleName}')" class="bg-[#141414] hover:bg-[#1f1f1f] gold-gradient-text border gold-border font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">Export Excel</button>
                     </div>
@@ -1469,12 +1470,12 @@
                             <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest">Segregated Batchwise • A-Z</p>
                         </div>
                         ${canWrite ? `
-                        <div class="flex items-center space-x-3">
+                        <div class="flex items-center flex-wrap gap-3">
                             <button onclick="openRecordModal('students')" class="gold-bg hover:opacity-95 text-black font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">+ Add New Record</button>
                             <button onclick="openBulkImportModal('students')" class="bg-[#141414] hover:bg-[#1f1f1f] gold-gradient-text border gold-border font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">+ Add Document</button>
                         </div>` : ''}
                     </div>
-                    <div class="flex items-center justify-end space-x-3">
+                    <div class="flex items-center justify-end flex-wrap gap-3">
                         <button onclick="exportModulePDF('students')" class="bg-[#141414] hover:bg-[#1f1f1f] gold-gradient-text border gold-border font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">Export PDF</button>
                         <button onclick="exportModuleExcel('students')" class="bg-[#141414] hover:bg-[#1f1f1f] gold-gradient-text border gold-border font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">Export Excel</button>
                     </div>
