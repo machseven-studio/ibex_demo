@@ -18,7 +18,6 @@
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            /* Dark red textured background – ultra high resolution, no gold */
             background-color: #1a0505;
             background-image:
                 radial-gradient(ellipse at 20% 30%, rgba(100, 12, 12, 0.85) 0%, rgba(30, 4, 4, 0.95) 60%, #0a0101 100%),
@@ -31,7 +30,6 @@
             font-weight: 500;
         }
 
-        /* --- Typography (gold text preserved) --- */
         .elegant-font { font-family: 'Fraunces', serif; font-weight: 600; }
         h1, h2, h3 { font-family: 'Fraunces', serif; letter-spacing: -0.01em; }
         .premium-heading-font { font-family: 'Playfair Display', serif; font-weight: 800; letter-spacing: -0.01em; }
@@ -52,7 +50,6 @@
 
         .gold-bg { background: linear-gradient(135deg, #EACD6E, #AA771C); }
 
-        /* --- Glass panels – deep dark red with subtle texture --- */
         .glass-panel {
             background: linear-gradient(160deg, rgba(40, 8, 8, 0.88), rgba(10, 2, 2, 0.96));
             border: 1px solid rgba(212, 175, 55, 0.18);
@@ -60,7 +57,6 @@
             backdrop-filter: blur(2px);
         }
 
-        /* --- Header, sidebar, main – transparent overlay --- */
         #appContainer header {
             background: rgba(10, 3, 3, 0.92);
             border-bottom-color: rgba(212, 175, 55, 0.18);
@@ -72,7 +68,6 @@
         }
         #mainContent { background: rgba(0,0,0,0.15); }
 
-        /* --- Mini bars, badges, etc. (gold accents) --- */
         .mini-bar-track { background: rgba(212,175,55,0.08); border-radius: 999px; overflow: hidden; height: 8px; }
         .mini-bar-fill { background: linear-gradient(90deg, #8a6a22, #E8C767); height: 100%; border-radius: 999px; transition: width 0.4s ease; }
         .module-check { accent-color: #D4AF37; }
@@ -86,15 +81,16 @@
             transition: background-color 0.1s ease, color 0.1s ease, border-color 0.1s ease;
             letter-spacing: 0.06em;
             will-change: background, color;
+            padding-left: 1rem !important;
+            border-left: none !important;
         }
         .sidebar-item:hover, .sidebar-item.active {
             background: rgba(212, 175, 55, 0.12);
             color: #E8C767;
-            border-left: 3px solid #D4AF37;
-            padding-left: 1.75rem;
+            border-left: 3px solid #D4AF37 !important;
+            padding-left: 1.75rem !important;
         }
 
-        /* --- Ultra‑smooth interactions --- */
         .fast-transition {
             transition: background-color 0.1s ease, color 0.1s ease, opacity 0.1s ease, transform 0.1s ease;
             will-change: transform, opacity;
@@ -121,7 +117,6 @@
         .row-delete-btn { color: #6b7280; transition: color 0.1s ease; }
         .row-delete-btn:hover { color: #f87171; }
 
-        /* --- Scrollbar --- */
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #0a0a0a; }
         ::-webkit-scrollbar-thumb { background: #332d16; border-radius: 3px; }
@@ -145,7 +140,6 @@
         .head-chevron { transition: transform .15s ease; }
         .rotate-180 { transform: rotate(180deg); }
 
-        /* --- Sidebar collapse transitions --- */
         #moduleSidebar {
             transition: width .45s cubic-bezier(.65,0,.35,1), min-width .45s cubic-bezier(.65,0,.35,1), padding .45s cubic-bezier(.65,0,.35,1);
             will-change: width, min-width, padding;
@@ -169,7 +163,6 @@
         }
         #sidebarCollapseButton:hover { border-color: #d4af37; }
 
-        /* --- Parallax search results styling --- */
         .parallax-search-shell {
             margin-top: 1rem;
             padding: 18px;
@@ -256,7 +249,6 @@
             font-size: 10px;
         }
 
-        /* --- Branch selector layout --- */
         .branch-selector-stack {
             display: flex;
             flex-direction: column;
@@ -271,7 +263,6 @@
             flex: 0 0 auto;
         }
 
-        /* --- User info alignment --- */
         .user-info-box {
             display: flex;
             flex-direction: column;
@@ -284,7 +275,6 @@
             min-height: 60px;
         }
 
-        /* --- Exam modules styles --- */
         #examV2Root .examv2-card,
         #examUpgradeRoot > div {
             border-color: rgba(212,175,55,.18);
@@ -303,6 +293,15 @@
             color: #d1d5db;
             border-bottom: 1px solid #181818;
         }
+
+        /* Remove icons from sidebar items */
+        #moduleGroups .sidebar-item > span:first-child {
+            display: none !important;
+        }
+        #moduleGroups .sidebar-item {
+            justify-content: flex-start !important;
+            gap: 0 !important;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -319,7 +318,6 @@
                 <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest">Enterprise Institutional Portal</p>
             </div>
 
-            <!-- LOGIN FORM -->
             <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Email</label>
@@ -330,13 +328,10 @@
                     <input type="password" id="loginPassword" required placeholder="••••••••••••" class="w-full bg-[#0c0c0c] border gold-border rounded-xl px-4 py-3 text-sm text-gray-200 gold-border-glow focus:outline-none">
                 </div>
                 <div id="loginError" class="auth-error"></div>
-                <button type="submit" class="w-full gold-bg hover:opacity-95 text-black font-extrabold py-3.5 rounded-xl text-sm fast-transition shadow-lg tracking-wider uppercase">
-                    Log In
-                </button>
+                <button type="submit" class="w-full gold-bg hover:opacity-95 text-black font-extrabold py-3.5 rounded-xl text-sm fast-transition shadow-lg tracking-wider uppercase">Log In</button>
                 <p class="text-center text-xs text-gray-500 pt-2">New institute? <a href="#" onclick="showSignup(event)" class="gold-gradient-text font-semibold hover:underline">Create an account</a></p>
             </form>
 
-            <!-- SIGNUP FORM -->
             <form id="signupForm" onsubmit="handleSignup(event)" class="space-y-4 hidden">
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Institute Name</label>
@@ -355,9 +350,7 @@
                     <input type="password" id="signupPassword" required minlength="8" placeholder="••••••••••••" class="w-full bg-[#0c0c0c] border gold-border rounded-xl px-4 py-3 text-sm text-gray-200 gold-border-glow focus:outline-none">
                 </div>
                 <div id="signupError" class="auth-error"></div>
-                <button type="submit" class="w-full gold-bg hover:opacity-95 text-black font-extrabold py-3.5 rounded-xl text-sm fast-transition shadow-lg tracking-wider uppercase">
-                    Create Account
-                </button>
+                <button type="submit" class="w-full gold-bg hover:opacity-95 text-black font-extrabold py-3.5 rounded-xl text-sm fast-transition shadow-lg tracking-wider uppercase">Create Account</button>
                 <p class="text-center text-xs text-gray-500 pt-2">Already registered? <a href="#" onclick="showLogin(event)" class="gold-gradient-text font-semibold hover:underline">Log in</a></p>
             </form>
 
@@ -371,7 +364,6 @@
 
     <!-- MAIN APP -->
     <div id="appContainer" class="min-h-screen flex flex-col hidden">
-        <!-- HEADER -->
         <header class="border-b gold-border px-8 py-3 flex justify-between items-center sticky top-0 z-40" style="background:rgba(10,3,3,0.92);">
             <div class="flex items-center space-x-4">
                 <div class="group flex items-center space-x-2">
@@ -380,18 +372,16 @@
                 </div>
             </div>
             <div class="flex items-center space-x-4">
-                <!-- BRANCH SELECTOR + BUTTONS (reorganised) -->
                 <div class="bg-[#121212] px-3 py-2 rounded-lg border gold-border branch-selector-stack">
                     <select id="branchSelector" aria-label="Branch selector" class="bg-transparent text-xs font-semibold gold-gradient-text focus:outline-none cursor-pointer w-full"></select>
                     <div class="branch-action-row">
                         <button onclick="openAddBranchModal()" title="Add branch" aria-label="Add branch" class="branch-icon-btn">+</button>
-                        <button onclick="editBranchRuntime()" title="Edit branch" aria-label="Edit branch" class="branch-icon-btn">✎</button>
-                        <button onclick="deleteBranchRuntime()" title="Delete branch" aria-label="Delete branch" class="branch-icon-btn">🗑</button>
+                        <button onclick="window.editBranchRuntime()" title="Edit branch" aria-label="Edit branch" class="branch-icon-btn">✎</button>
+                        <button onclick="window.deleteBranchRuntime()" title="Delete branch" aria-label="Delete branch" class="branch-icon-btn">🗑</button>
                     </div>
                     <button onclick="openCentralAnalytics()" title="Aggregated, read-only analytics across every branch" class="text-[10px] bg-[#1a1a1a] hover:bg-[#252525] gold-gradient-text border gold-border px-2 py-1 rounded fast-transition whitespace-nowrap w-full">📊 Centralised Analytics</button>
                 </div>
 
-                <!-- USER INFO (aligned) -->
                 <div class="user-info-box">
                     <div class="text-gray-400 text-xs">Logged in as</div>
                     <div id="headerFullName" class="font-bold gold-gradient-text text-sm">—</div>
@@ -402,7 +392,6 @@
             </div>
         </header>
 
-        <!-- MAIN LAYOUT -->
         <div class="flex flex-1 overflow-hidden">
             <nav id="moduleSidebar" class="w-72 border-r gold-border flex flex-col py-6 space-y-1.5 shrink-0" style="background:rgba(10,3,3,0.88);">
                 <button id="sidebarCollapseButton" type="button" aria-label="Collapse sidebar" title="Collapse sidebar" onclick="toggleSidebar()">‹</button>
@@ -421,7 +410,8 @@
         </div>
     </div>
 
-    <!-- MODALS -->
+    <!-- ============ MODALS ============ -->
+    <!-- Rename Institute Modal -->
     <div id="renameInstituteModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50">
         <div class="glass-panel border gold-border p-8 rounded-2xl w-full max-w-md shadow-2xl">
             <div class="flex justify-between items-center mb-6">
@@ -436,6 +426,7 @@
         </div>
     </div>
 
+    <!-- Add Staff User Modal -->
     <div id="userModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50">
         <div class="glass-panel border gold-border p-8 rounded-2xl w-full max-w-lg shadow-2xl">
             <div class="flex justify-between items-center mb-6">
@@ -470,6 +461,7 @@
         </div>
     </div>
 
+    <!-- Bulk Import Modal -->
     <div id="bulkImportModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50">
         <div class="glass-panel border gold-border p-8 rounded-2xl w-full max-w-lg shadow-2xl">
             <div class="flex justify-between items-center mb-6">
@@ -486,6 +478,7 @@
         </div>
     </div>
 
+    <!-- Generic Add Record Modal -->
     <div id="recordModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50">
         <div class="glass-panel border gold-border p-8 rounded-2xl w-full max-w-lg shadow-2xl">
             <div class="flex justify-between items-center mb-6">
@@ -504,6 +497,7 @@
         </div>
     </div>
 
+    <!-- Timetable Slot Edit Modal -->
     <div id="timetableSlotEditModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50">
         <div class="glass-panel border gold-border p-8 rounded-2xl w-full max-w-md shadow-2xl">
             <div class="flex justify-between items-center mb-6">
@@ -525,6 +519,7 @@
         </div>
     </div>
 
+    <!-- Add Branch Modal -->
     <div id="branchModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50">
         <div class="glass-panel border gold-border p-8 rounded-2xl w-full max-w-md shadow-2xl">
             <div class="flex justify-between items-center mb-6">
@@ -538,6 +533,7 @@
         </div>
     </div>
 
+    <!-- Attendance History Modal -->
     <div id="attendanceHistoryModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
         <div class="glass-panel border gold-border p-8 rounded-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto shadow-2xl">
             <div class="flex justify-between items-start mb-2 gap-4">
@@ -553,6 +549,7 @@
         </div>
     </div>
 
+    <!-- Central Analytics Modal -->
     <div id="centralAnalyticsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
         <div class="glass-panel border gold-border p-8 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-2xl">
             <div class="flex justify-between items-start mb-6 gap-4">
@@ -571,7 +568,21 @@
 
     <!-- ============ JAVASCRIPT ============ -->
     <script>
-        // Global state
+        // --- Chart.js guard (fixes IBEXChart) ---
+        (function(){
+            if (window.__ibexChartGuardInstalled) return;
+            window.__ibexChartGuardInstalled = true;
+            window.IBEXChart = function(target, config){
+                if (!window.Chart) return { destroy:function(){}, update:function(){}, resize:function(){} };
+                var el = typeof target === 'string' ? document.getElementById(target) : target;
+                if (!el || !document.documentElement.contains(el)) return { destroy:function(){}, update:function(){}, resize:function(){} };
+                return new window.Chart(el, config);
+            };
+        })();
+
+        // ============================================================
+        // GLOBAL STATE
+        // ============================================================
         let branches = [];
         let currentBranchId = null;
         let isGlobalView = false;
@@ -590,7 +601,10 @@
         };
         const MODULE_HEAD = Object.fromEntries(Object.entries(HEAD_MODULES).flatMap(([h, ms]) => ms.map(([m]) => [m, h])));
 
-        // ----- Auth helpers -----
+        // ----- Utility -----
+        function esc(v) { return String(v ?? '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c])); }
+
+        // ----- Auth -----
         function showSignup(e) { e.preventDefault(); document.getElementById('loginForm').classList.add('hidden'); document.getElementById('signupForm').classList.remove('hidden'); }
         function showLogin(e) { e.preventDefault(); document.getElementById('signupForm').classList.add('hidden'); document.getElementById('loginForm').classList.remove('hidden'); }
 
@@ -772,51 +786,53 @@
         function openAddBranchModal() { if (isGlobalView) return; document.getElementById('branchModal').classList.remove('hidden'); }
         function closeAddBranchModal() { document.getElementById('branchModal').classList.add('hidden'); document.getElementById('newBranchName').value = ''; }
 
-        async function openCentralAnalytics() {
-            document.getElementById('centralAnalyticsModal').classList.remove('hidden');
-            await renderCentralAnalyticsModule();
-        }
-        function closeCentralAnalyticsModal() {
-            document.getElementById('centralAnalyticsModal').classList.add('hidden');
-            (window.__centralAnalyticsCharts || []).forEach(c => { try { c.destroy(); } catch (_) {} });
-            window.__centralAnalyticsCharts = [];
-        }
-        async function renderCentralAnalyticsModule() {
-            window.__centralAnalyticsCharts = window.__centralAnalyticsCharts || [];
-            window.__centralAnalyticsCharts.forEach(c => { try { c.destroy(); } catch (_) {} });
-            window.__centralAnalyticsCharts = [];
-            const error = document.getElementById('centralAnalyticsError');
-            const content = document.getElementById('centralAnalyticsContent');
-            if (error) error.textContent = '';
-            if (content) content.innerHTML = '<div class="glass-panel border gold-border p-10 rounded-2xl text-center text-gray-500">Loading analytics…</div>';
-            try {
-                const res = await authFetch('/api/analytics/0');
-                const data = await readApiJson(res, 'Centralised analytics request');
-                renderCentralAnalyticsContent(data);
-            } catch (err) {
-                if (error) error.textContent = err.message || 'Failed to load centralised analytics.';
-                if (content) content.innerHTML = '<div class="glass-panel border border-red-900/40 p-8 rounded-2xl text-center text-gray-500">Centralised analytics could not be loaded.</div>';
-            }
-        }
-
-        async function createNewBranch() {
-            const name = document.getElementById('newBranchName').value.trim();
-            if (!name) return;
-            const res = await authFetch('/api/branches', {
-                method: 'POST',
+        // ---- Edit / Delete branch (exposed globally) ----
+        window.editBranchRuntime = async function() {
+            const b = branches.find(x => Number(x.id) === Number(currentBranchId));
+            if (!b || myPermission === 'read_only') return;
+            const n = prompt('Rename branch:', b.name || '');
+            if (n === null || !n.trim() || n.trim() === b.name) return;
+            const r = await authFetch(`/api/branches/${b.id}`, {
+                method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name })
+                body: JSON.stringify({ name: n.trim() })
             });
-            if (res.ok) {
-                const newBranch = await res.json();
-                closeAddBranchModal();
-                await loadBranches();
-                currentBranchId = newBranch.id;
-                document.getElementById('branchSelector').value = currentBranchId;
-                refreshCurrentModule();
-            } else {
-                alert('Branch already exists or invalid name.');
-            }
+            const d = await r.json().catch(() => ({}));
+            if (!r.ok) return alert(d.detail || 'Could not rename branch.');
+            await loadBranches();
+            refreshCurrentModule();
+        };
+
+        window.deleteBranchRuntime = async function() {
+            const b = branches.find(x => Number(x.id) === Number(currentBranchId));
+            if (!b || myPermission === 'read_only') return;
+            if (!confirm(`Delete "${b.name}"?\n\nALL students, teachers, classrooms, attendance, syllabus, timetables, seating plans, fees, results and history in this branch will be permanently wiped.\n\nThis cannot be undone.`)) return;
+            const r = await authFetch(`/api/branches/${b.id}`, { method: 'DELETE' });
+            const d = await r.json().catch(() => ({}));
+            if (!r.ok) return alert(d.detail || 'Could not delete branch.');
+            currentBranchId = null;
+            await loadBranches();
+            refreshCurrentModule();
+        };
+
+        // ----- Sidebar & navigation -----
+        function renderModuleGroups() {
+            const groups = document.getElementById('moduleGroups');
+            if (!groups) return;
+            groups.innerHTML = ACCESS_HEADS.filter(h => isOwner || myAllowedModules.includes(h)).map(head => {
+                const open = head === 'homepage' && isOwner;
+                const children = HEAD_MODULES[head].filter(([m]) => m !== 'users' || isOwner);
+                const title = head === 'homepage' ? 'Homepage' : head === 'administrations' ? 'Administrations' : 'Examination';
+                return `<div class="mb-1 module-head-group" data-head="${head}">
+                    <div class="w-full flex items-center justify-between px-3 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-yellow-500 hover:bg-[#111]">
+                        <span class="module-head-title module-head-text flex-1" onclick="switchHead('${head}')">${title}</span>
+                        <button type="button" class="module-head-arrow head-chevron ${open ? 'rotate-180' : ''}" aria-label="Toggle ${title}" onclick="toggleModuleHead('${head}', event)">⌄</button>
+                    </div>
+                    <div id="head-${head}" class="${open ? '' : 'hidden'} space-y-0.5">` +
+                    children.map(([mod, icon, label]) => `<button onclick="switchModule('${mod}', this)" data-module="${mod}" class="sidebar-item w-full text-left px-3 py-3 text-xs font-extrabold uppercase text-gray-300 flex items-center space-x-3 rounded-lg"><span class="hidden">${icon}</span><span class="module-label">${label}</span></button>`).join('') +
+                    `</div>
+                </div>`;
+            }).join('');
         }
 
         async function switchModule(moduleName, clickedButton = null) {
@@ -833,25 +849,6 @@
                 if (fallback) fallback.classList.add('active');
             }
             await refreshCurrentModule();
-        }
-
-        function renderModuleGroups() {
-            const groups = document.getElementById('moduleGroups');
-            if (!groups) return;
-            groups.innerHTML = ACCESS_HEADS.filter(h => isOwner || myAllowedModules.includes(h)).map(head => {
-                const open = head === 'homepage' && isOwner;
-                const children = HEAD_MODULES[head].filter(([m]) => m !== 'users' || isOwner);
-                const title = head === 'homepage' ? 'Homepage' : head === 'administrations' ? 'Administrations' : 'Examination';
-                return `<div class="mb-1 module-head-group" data-head="${head}">
-                    <div class="w-full flex items-center justify-between px-3 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-yellow-500 hover:bg-[#111]">
-                        <span class="module-head-title module-head-text flex-1" onclick="switchHead('${head}')">${title}</span>
-                        <button type="button" class="module-head-arrow head-chevron ${open ? 'rotate-180' : ''}" aria-label="Toggle ${title}" onclick="toggleModuleHead('${head}', event)">⌄</button>
-                    </div>
-                    <div id="head-${head}" class="${open ? '' : 'hidden'} space-y-0.5">` +
-                    children.map(([mod, icon, label]) => `<button onclick="switchModule('${mod}', this)" data-module="${mod}" class="sidebar-item w-full text-left px-3 py-3 text-xs font-extrabold uppercase text-gray-300 flex items-center space-x-3 rounded-lg"><span>${icon}</span><span class="module-label">${label}</span></button>`).join('') +
-                    `</div>
-                </div>`;
-            }).join('');
         }
 
         function switchHead(head) {
@@ -895,95 +892,7 @@
             if (button) button.classList.toggle('rotate-180');
         }
 
-        function centralStatCard(label, value) {
-            return `<div class="glass-panel border gold-border rounded-2xl p-5"><div class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">${esc(label)}</div><div class="text-3xl font-black gold-gradient-text mt-1">${esc(value)}</div></div>`;
-        }
-
-        function renderCentralAnalyticsContent(d) {
-            const el = document.getElementById('centralAnalyticsContent');
-            if (!el) return;
-            const a = d.attendance || {}, f = d.fees || {}, l = d.lectures || {};
-            const trend = a.trend || [], batches = a.by_batch || [], revenue = (f.revenue || []).slice().reverse();
-
-            el.innerHTML = `
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    ${centralStatCard('Students', d.students_total)}
-                    ${centralStatCard('Teachers', d.teachers_total)}
-                    ${centralStatCard('Classrooms', d.classrooms_total)}
-                    ${centralStatCard('Fees Pending', '₹' + Number(f.pending_amount || 0).toLocaleString('en-IN'))}
-                </div>
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div class="glass-panel border gold-border rounded-2xl p-6">
-                        <div class="text-xs uppercase tracking-widest text-gray-400 font-bold mb-4">Attendance - Last 7 Days</div>
-                        <canvas id="centralAttendanceChart" height="220"></canvas>
-                    </div>
-                    <div class="glass-panel border gold-border rounded-2xl p-6">
-                        <div class="text-xs uppercase tracking-widest text-gray-400 font-bold mb-4">Attendance by Batch</div>
-                        <canvas id="centralBatchChart" height="220"></canvas>
-                    </div>
-                    <div class="glass-panel border gold-border rounded-2xl p-6 md:col-span-2">
-                        <div class="text-xs uppercase tracking-widest text-gray-400 font-bold mb-4">Fee Revenue (Recent)</div>
-                        <canvas id="centralRevenueChart" height="180"></canvas>
-                    </div>
-                </div>
-            `;
-
-            const goldLine = '#d4af37';
-            if (!window.Chart) {
-                const error = document.getElementById('centralAnalyticsError');
-                if (error) error.textContent = 'Analytics charts are unavailable because Chart.js did not load.';
-                return;
-            }
-
-            const gridColor = 'rgba(212,175,55,0.12)';
-            const tickColor = '#9ca3af';
-
-            const attendanceCtx = document.getElementById('centralAttendanceChart');
-            if (attendanceCtx && window.Chart) {
-                window.__centralAnalyticsCharts.push(new window.IBEXChart(attendanceCtx, {
-                    type: 'line',
-                    data: {
-                        labels: trend.map(t => t.label),
-                        datasets: [{ label: 'Present %', data: trend.map(t => t.pct), borderColor: goldLine, backgroundColor: 'rgba(212,175,55,0.15)', tension: 0.35, fill: true }]
-                    },
-                    options: {
-                        plugins: { legend: { labels: { color: tickColor } } },
-                        scales: { x: { ticks: { color: tickColor }, grid: { color: gridColor } }, y: { ticks: { color: tickColor }, grid: { color: gridColor }, min: 0, max: 100 } }
-                    }
-                }));
-            }
-
-            const batchCtx = document.getElementById('centralBatchChart');
-            if (batchCtx && window.Chart) {
-                window.__centralAnalyticsCharts.push(new window.IBEXChart(batchCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: batches.map(b => b.batch),
-                        datasets: [{ label: 'Attendance %', data: batches.map(b => b.pct), backgroundColor: goldLine }]
-                    },
-                    options: {
-                        plugins: { legend: { display: false } },
-                        scales: { x: { ticks: { color: tickColor }, grid: { display: false } }, y: { ticks: { color: tickColor }, grid: { color: gridColor }, min: 0, max: 100 } }
-                    }
-                }));
-            }
-
-            const revenueCtx = document.getElementById('centralRevenueChart');
-            if (revenueCtx && window.Chart) {
-                window.__centralAnalyticsCharts.push(new window.IBEXChart(revenueCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: revenue.map(r => r.date),
-                        datasets: [{ label: 'Revenue (₹)', data: revenue.map(r => r.amount), backgroundColor: 'rgba(212,175,55,0.65)' }]
-                    },
-                    options: {
-                        plugins: { legend: { display: false } },
-                        scales: { x: { ticks: { color: tickColor }, grid: { display: false } }, y: { ticks: { color: tickColor }, grid: { color: gridColor } } }
-                    }
-                }));
-            }
-        }
-
+        // ----- refreshCurrentModule (dispatcher) -----
         async function refreshCurrentModule() {
             const container = document.getElementById('mainContent');
             if (!container) return;
@@ -993,7 +902,7 @@
                 } else if (currentModule === 'analytics') {
                     await renderAnalyticsModule(container);
                 } else if (currentModule === 'timetables') {
-                    await renderTimetableModule(container);
+                    await window.renderTimetableModule(container);
                 } else if (currentModule === 'users') {
                     await renderUsersModule(container);
                 } else if (currentModule === 'students') {
@@ -1007,9 +916,9 @@
                 } else if (currentModule === 'central_analytics') {
                     await renderCentralAnalyticsModule(container);
                 } else if (currentModule === 'results') {
-                    await renderResults();
+                    await window.renderResults();
                 } else if (currentModule === 'history') {
-                    await renderHistory();
+                    await window.renderHistory();
                 } else {
                     await renderDataModule(container, currentModule);
                 }
@@ -1019,6 +928,7 @@
             }
         }
 
+        // ----- Helper: readApiJson -----
         async function readApiJson(res, context = 'Request') {
             const text = await res.text();
             let data = null;
@@ -1202,9 +1112,7 @@
             } catch (e) { console.error(e); }
         }
 
-        // ----- Utilities -----
-        function esc(v) { return String(v ?? '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c])); }
-
+        // ----- PDF / Excel exports -----
         function ibexPdfHeader(doc, title, subtitle) {
             const pageWidth = doc.internal.pageSize.getWidth();
             const pageHeight = doc.internal.pageSize.getHeight();
@@ -1285,37 +1193,7 @@
             window.XLSX.writeFile(wb, `${moduleName}_export.xlsx`);
         }
 
-        // ----- Generic data module -----
-        async function renderDataModule(container, moduleName) {
-            const canWrite = myPermission !== 'read_only' && !isGlobalView;
-            container.innerHTML = `
-                <div class="space-y-6">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h2 class="text-2xl font-black uppercase gold-gradient-text tracking-wide">${moduleName} Department</h2>
-                            <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest">Scope Synchronized</p>
-                        </div>
-                        ${canWrite ? `
-                        <div class="flex items-center space-x-3">
-                            <button onclick="openRecordModal('${moduleName}')" class="gold-bg hover:opacity-95 text-black font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">+ Add New Record</button>
-                            <button onclick="openBulkImportModal('${moduleName}')" class="bg-[#141414] hover:bg-[#1f1f1f] gold-gradient-text border gold-border font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">+ Add Document</button>
-                        </div>` : ''}
-                    </div>
-                    <div class="flex items-center justify-end space-x-3">
-                        <button onclick="exportModulePDF('${moduleName}')" class="bg-[#141414] hover:bg-[#1f1f1f] gold-gradient-text border gold-border font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">Export PDF</button>
-                        <button onclick="exportModuleExcel('${moduleName}')" class="bg-[#141414] hover:bg-[#1f1f1f] gold-gradient-text border gold-border font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">Export Excel</button>
-                    </div>
-                    <div class="glass-panel border gold-border rounded-2xl p-6 overflow-x-auto shadow-2xl">
-                        <table class="w-full text-left text-sm text-gray-300">
-                            <thead id="moduleTableHead" class="bg-[#121212] text-xs uppercase gold-gradient-text border-b gold-border"></thead>
-                            <tbody id="moduleTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
-            await loadModuleRecords(moduleName);
-        }
-
+        // ----- Data module (generic) -----
         const MODULE_COLUMNS = {
             students: [
                 { key: 'name', label: 'Name' },
@@ -1354,6 +1232,36 @@
         };
 
         let moduleRecordsCache = {};
+
+        async function renderDataModule(container, moduleName) {
+            const canWrite = myPermission !== 'read_only' && !isGlobalView;
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-2xl font-black uppercase gold-gradient-text tracking-wide">${moduleName} Department</h2>
+                            <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest">Scope Synchronized</p>
+                        </div>
+                        ${canWrite ? `
+                        <div class="flex items-center space-x-3">
+                            <button onclick="openRecordModal('${moduleName}')" class="gold-bg hover:opacity-95 text-black font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">+ Add New Record</button>
+                            <button onclick="openBulkImportModal('${moduleName}')" class="bg-[#141414] hover:bg-[#1f1f1f] gold-gradient-text border gold-border font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">+ Add Document</button>
+                        </div>` : ''}
+                    </div>
+                    <div class="flex items-center justify-end space-x-3">
+                        <button onclick="exportModulePDF('${moduleName}')" class="bg-[#141414] hover:bg-[#1f1f1f] gold-gradient-text border gold-border font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">Export PDF</button>
+                        <button onclick="exportModuleExcel('${moduleName}')" class="bg-[#141414] hover:bg-[#1f1f1f] gold-gradient-text border gold-border font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">Export Excel</button>
+                    </div>
+                    <div class="glass-panel border gold-border rounded-2xl p-6 overflow-x-auto shadow-2xl">
+                        <table class="w-full text-left text-sm text-gray-300">
+                            <thead id="moduleTableHead" class="bg-[#121212] text-xs uppercase gold-gradient-text border-b gold-border"></thead>
+                            <tbody id="moduleTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            await loadModuleRecords(moduleName);
+        }
 
         async function loadModuleRecords(moduleName) {
             if (!currentBranchId) return;
@@ -1398,7 +1306,7 @@
             await loadModuleRecords('fees');
         }
 
-        // ----- Students module (batchwise) -----
+        // ----- Students (batchwise) -----
         let allStudentRecords = [];
 
         async function renderStudentsModule(container) {
@@ -1492,7 +1400,7 @@
             tbody.innerHTML = rows;
         }
 
-        // ----- Attendance module -----
+        // ----- Attendance -----
         let attendanceAllStudents = [];
         let attendanceMarksToday = {};
         const attendanceToday = new Date().toISOString().slice(0, 10);
@@ -1594,6 +1502,7 @@
                     <div class="bg-[#0c0c0c] rounded-xl p-3 border gold-border text-center"><div class="text-[10px] text-gray-500 uppercase tracking-widest">Present</div><div class="text-xl font-black text-green-400 mt-1">${data.present_count}</div></div>
                     <div class="bg-[#0c0c0c] rounded-xl p-3 border gold-border text-center"><div class="text-[10px] text-gray-500 uppercase tracking-widest">Absent</div><div class="text-xl font-black text-red-400 mt-1">${data.absent_count}</div></div>
                 `;
+                // Fix: properly render history rows using esc on each field
                 body.innerHTML = data.history.length
                     ? data.history.map(h => `
                         <div class="flex items-center justify-between py-2 border-b border-gray-900">
@@ -1718,7 +1627,7 @@
             }
         }
 
-        // ----- Users module -----
+        // ----- Users -----
         const MODULE_LABELS = {
             students: 'Students', teachers: 'Teachers', classrooms: 'Classrooms', syllabus: 'Syllabus',
             attendance: 'Attendance', analytics: 'Analytics', timetables: 'Timetable', seating: 'Exam Seating', invigilation: 'Invigilator Duty', fees: 'Fees', assistant: 'Parallax',
@@ -1874,17 +1783,7 @@
             if (res.ok) { await loadUsers(); } else { alert('Failed to remove user.'); }
         }
 
-        // ----- Timetable module -----
-        let ttTeachersData = [];
-        let ttSavedConfigs = [];
-
-        const TT_DEFAULT_TIMINGS = [
-            { lecture_number: 1, time_slot: '09:00 AM - 10:00 AM' },
-            { lecture_number: 2, time_slot: '10:00 AM - 11:00 AM' },
-            { lecture_number: 3, time_slot: '11:15 AM - 12:15 PM' },
-            { lecture_number: 4, time_slot: '01:15 PM - 02:15 PM' },
-        ];
-
+        // ----- Parallax (Assistant) -----
         window.parallaxHistory = window.parallaxHistory || [];
 
         async function renderAssistantModule(container) {
@@ -1955,7 +1854,7 @@
             }
         }
 
-        // ----- Seating module -----
+        // ----- Seating -----
         async function renderSeatingModule(container) {
             const canWrite = myPermission !== 'read_only' && !isGlobalView;
             const res = await authFetch(`/api/seating/${currentBranchId}`);
@@ -2046,9 +1945,701 @@
             renderSavedSeatingLayouts();
         }
 
-        // ----- Timetable module implementation (full) -----
-        // ... (the rest of the timetable functions are identical to what we had; I'll include them in the final answer)
-        // For brevity, I'll include them in the final code block. But the user wants all files, so I'll provide the full backend main.py as well.
+        // ----- Timetable (full) -----
+        let ttTeachersData = [];
+        let ttSavedConfigs = [];
+        const TT_DEFAULT_TIMINGS = [
+            { lecture_number: 1, time_slot: '09:00 AM - 10:00 AM' },
+            { lecture_number: 2, time_slot: '10:00 AM - 11:00 AM' },
+            { lecture_number: 3, time_slot: '11:15 AM - 12:15 PM' },
+            { lecture_number: 4, time_slot: '01:15 PM - 02:15 PM' },
+        ];
+
+        window.renderTimetableModule = async function(container) {
+            container.innerHTML = `<div class="glass-panel border gold-border p-10 rounded-2xl text-center text-gray-500">Loading timetable…</div>`;
+            try {
+                const canWrite = myPermission !== 'read_only' && !isGlobalView;
+                const [tRes, sRes, cRes] = await Promise.all([
+                    authFetch(`/api/records/teachers/${currentBranchId}`),
+                    authFetch(`/api/timetable/slots/${currentBranchId}`),
+                    authFetch(`/api/timetable/configs/${currentBranchId}`),
+                ]);
+                ttTeachersData = await readApiJson(tRes, 'Teachers data');
+                window.ttSavedSlots = await readApiJson(sRes, 'Timetable slots');
+                ttSavedConfigs = await readApiJson(cRes, 'Timetable configurations');
+                if (!Array.isArray(ttTeachersData) || !Array.isArray(window.ttSavedSlots) || !Array.isArray(ttSavedConfigs)) {
+                    throw new Error('Timetable API returned an invalid data shape.');
+                }
+
+                const batchNamesInSlots = [...new Set(window.ttSavedSlots.map(s => s.batch_name))].sort((a, b) => (a || '').localeCompare(b || ''));
+
+                container.innerHTML = `
+                    <div class="space-y-8">
+                        <div class="flex justify-between items-center flex-wrap gap-3">
+                            <div>
+                                <h2 class="text-2xl font-black uppercase gold-gradient-text tracking-wide">Timetable Generation & Batch Scheduler</h2>
+                                <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest">Conflict-checked · one batch at a time · never stacked</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                ${canWrite ? '<button onclick="deleteAllTimetables()" class="bg-[#171010] hover:bg-[#241313] text-red-400 border border-red-900/40 px-5 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider fast-transition">Delete All Timetables</button>' : ''}
+                                <button onclick="window.print()" class="bg-[#141414] hover:bg-[#202020] gold-gradient-text border gold-border px-5 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider fast-transition shadow-lg">Download PDF / Print Timetable</button>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-8">
+                            <div class="glass-panel border gold-border p-8 rounded-2xl space-y-6 relative z-10">
+                                <h3 class="text-lg font-extrabold gold-gradient-text uppercase tracking-wider">Configure Batch & Teacher Load</h3>
+                                <div class="space-y-5">
+                                    ${ttSavedConfigs.length > 0 ? `
+                                    <div>
+                                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Load Existing Batch <span class="text-gray-600 normal-case font-normal">(to edit & regenerate exactly)</span></label>
+                                        <select id="ttLoadBatchSelect" onchange="loadTimetableConfig(this.value)" class="w-full max-w-xl bg-[#0c0c0c] border gold-border rounded-xl p-3 text-sm text-gray-200 focus:outline-none relative z-10">
+                                            <option value="">— New Batch —</option>
+                                            ${ttSavedConfigs.map(c => `<option value="${esc(c.batch_name)}">${esc(c.batch_name)}</option>`).join('')}
+                                        </select>
+                                    </div>` : ''}
+                                    <div>
+                                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Batch Name</label>
+                                        <input type="text" id="ttBatchName" placeholder="e.g. B.Tech CSE Batch A" value="B.Tech CSE Batch A" class="w-full max-w-xl bg-[#0c0c0c] border gold-border rounded-xl p-3 text-sm text-gray-200 gold-border-glow focus:outline-none relative z-10">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Lecture Timings</label>
+                                        <div id="ttTimingRows" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-3xl"></div>
+                                        <button type="button" onclick="addTimingRow()" class="mt-3 text-xs font-bold gold-gradient-text hover:opacity-80">+ Add Lecture Timing</button>
+                                    </div>
+                                    <div class="pt-2">
+                                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Assigned Teachers & Constraints</label>
+                                        <div id="teacherConfigList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 max-h-[28rem] overflow-y-auto pr-2">
+                                            ${ttTeachersData.length === 0 ? '<p class="text-xs text-gray-500">No teachers found. Please add teachers first.</p>' :
+                                              ttTeachersData.map((t, idx) => `
+                                                <div class="p-4 bg-[#0f0f0f] border gold-border rounded-xl space-y-3" data-teacher="${esc(t.name)}" data-subject="${esc(t.subject)}">
+                                                    <div class="text-xs font-bold text-gray-200">${esc(t.name)} (${esc(t.subject)})</div>
+                                                    <div class="grid grid-cols-2 gap-2">
+                                                        <div><label class="text-[10px] text-gray-400 uppercase">Lectures/Week</label><input type="number" id="lec_${idx}" value="3" min="1" max="5" class="w-full bg-[#070707] border gold-border rounded p-2 text-xs text-white relative z-10"></div>
+                                                        <div><label class="text-[10px] text-gray-400 uppercase">Unavailable Days</label><input type="text" id="unav_${idx}" placeholder="e.g. Monday" class="w-full bg-[#070707] border gold-border rounded p-2 text-xs text-white relative z-10" title="Comma separated days"></div>
+                                                    </div>
+                                                </div>
+                                              `).join('')}
+                                        </div>
+                                    </div>
+                                    ${canWrite
+                                        ? `<button onclick="generateTimetableSchedule()" class="w-full max-w-xl gold-bg hover:opacity-95 text-black font-extrabold py-3.5 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">Generate / Regenerate Weekly Timetable</button>`
+                                        : `<p class="text-xs text-gray-500">You have read-only access and cannot generate timetables.</p>`}
+                                </div>
+                            </div>
+                            <div id="ttScheduleBox" class="glass-panel border gold-border p-6 rounded-2xl overflow-x-auto">
+                                <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
+                                    <h3 class="text-sm font-extrabold gold-gradient-text uppercase tracking-wider">Generated Weekly Schedule</h3>
+                                    ${batchNamesInSlots.length > 0 ? `
+                                    <select id="ttViewBatchFilter" onchange="renderTimetableGrid()" class="bg-[#0c0c0c] border gold-border rounded-lg p-2 text-xs text-gray-200 focus:outline-none">
+                                        <option value="">All Batches</option>
+                                        ${batchNamesInSlots.map(b => `<option value="${esc(b)}">${esc(b)}</option>`).join('')}
+                                    </select>` : ''}
+                                </div>
+                                <table class="w-full text-left text-sm text-gray-300">
+                                    <thead class="bg-[#121212] text-xs uppercase gold-gradient-text border-b gold-border">
+                                        <tr><th class="p-3">Batch</th><th class="p-3">Day</th><th class="p-3">Lecture #</th><th class="p-3">Time Slot</th><th class="p-3">Subject</th><th class="p-3">Teacher</th><th class="p-3">Room</th>${canWrite ? '<th class="p-3"></th>' : ''}</tr>
+                                    </thead>
+                                    <tbody id="timetableSlotsBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                setTimingRows(TT_DEFAULT_TIMINGS);
+                renderTimetableGrid();
+            } catch (err) {
+                console.error('Timetable load failed:', err);
+                container.innerHTML = `
+                    <div class="glass-panel border border-red-900/40 p-8 rounded-2xl">
+                        <div class="text-red-400 font-bold text-lg mb-2">Timetable could not be loaded</div>
+                        <div class="text-xs text-gray-500 mb-5">${esc(err.message || 'The timetable API returned an unexpected error.')}</div>
+                        <button onclick="refreshCurrentModule()" class="gold-bg text-black px-4 py-2.5 rounded-lg text-xs font-extrabold uppercase">Retry</button>
+                    </div>`;
+            }
+        };
+
+        function timingRowHtml(lectureNumber, timeSlot) {
+            return `
+                <div class="flex gap-2 items-center" data-timing-row>
+                    <input type="number" min="1" value="${lectureNumber}" title="Lecture Number" class="w-16 bg-[#070707] border gold-border rounded p-2 text-xs text-white tt-lecture-num">
+                    <input type="text" value="${esc(timeSlot)}" placeholder="09:00 AM - 10:00 AM" title="Time Slot" class="flex-1 bg-[#070707] border gold-border rounded p-2 text-xs text-white tt-time-slot">
+                    <button type="button" onclick="this.closest('[data-timing-row]').remove()" class="text-gray-500 hover:text-red-400 text-sm px-1">✕</button>
+                </div>`;
+        }
+
+        function setTimingRows(timings) {
+            const container = document.getElementById('ttTimingRows');
+            container.innerHTML = timings.map(t => timingRowHtml(t.lecture_number, t.time_slot)).join('');
+        }
+
+        function addTimingRow() {
+            const container = document.getElementById('ttTimingRows');
+            const nextNum = container.children.length + 1;
+            container.insertAdjacentHTML('beforeend', timingRowHtml(nextNum, ''));
+        }
+
+        function loadTimetableConfig(batchName) {
+            if (!batchName) {
+                document.getElementById('ttBatchName').value = '';
+                setTimingRows(TT_DEFAULT_TIMINGS);
+                document.querySelectorAll('#teacherConfigList > div').forEach((el, idx) => {
+                    document.getElementById(`lec_${idx}`).value = 3;
+                    document.getElementById(`unav_${idx}`).value = '';
+                });
+                return;
+            }
+            const config = ttSavedConfigs.find(c => c.batch_name === batchName);
+            if (!config) return;
+            document.getElementById('ttBatchName').value = config.batch_name;
+            setTimingRows(config.timings.slice().sort((a, b) => a.lecture_number - b.lecture_number));
+            document.querySelectorAll('#teacherConfigList > div').forEach((el, idx) => {
+                const name = el.getAttribute('data-teacher');
+                const match = config.teachers_config.find(t => t.name === name);
+                document.getElementById(`lec_${idx}`).value = match ? match.lectures_per_week : 3;
+                document.getElementById(`unav_${idx}`).value = (match && match.unavailable_days) ? match.unavailable_days.join(', ') : '';
+            });
+        }
+
+        function renderTimetableGrid() {
+            const tbody = document.getElementById('timetableSlotsBody');
+            const canWrite = myPermission !== 'read_only' && !isGlobalView;
+            const filterEl = document.getElementById('ttViewBatchFilter');
+            const filterBatch = filterEl ? filterEl.value : '';
+            let slots = window.ttSavedSlots || [];
+            if (filterBatch) slots = slots.filter(s => s.batch_name === filterBatch);
+
+            const dayOrder = { Monday: 0, Tuesday: 1, Wednesday: 2, Thursday: 3, Friday: 4, Saturday: 5, Sunday: 6 };
+            slots = slots.slice().sort((a, b) => {
+                if (a.batch_name !== b.batch_name) return (a.batch_name || '').localeCompare(b.batch_name || '');
+                const da = dayOrder[a.day] ?? 99, db = dayOrder[b.day] ?? 99;
+                if (da !== db) return da - db;
+                return (a.lecture_number || 0) - (b.lecture_number || 0);
+            });
+
+            if (!slots.length) {
+                tbody.innerHTML = `<tr><td colspan="${canWrite ? 8 : 7}" class="p-6 text-center text-gray-500">No timetable generated yet. Configure and click generate.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = slots.map(s => `
+                <tr class="border-b border-gray-900 hover:bg-[#121212] fast-transition">
+                    <td class="p-3 text-xs text-gray-400">${esc(s.batch_name)}</td>
+                    <td class="p-3 font-semibold text-yellow-500">${esc(s.day)}</td>
+                    <td class="p-3 text-xs text-gray-400">${s.lecture_number ?? '—'}</td>
+                    <td class="p-3">${esc(s.time_slot)}</td>
+                    <td class="p-3 font-medium">${esc(s.subject)}</td>
+                    <td class="p-3">${esc(s.teacher)}</td>
+                    <td class="p-3 text-xs text-gray-400">${esc(s.room)}</td>
+                    ${canWrite ? `<td class="p-3 text-right"><button onclick="openTimetableSlotEdit(${s.id})" title="Edit slot" class="row-delete-btn fast-transition text-sm leading-none">✎</button></td>` : ''}
+                </tr>
+            `).join('');
+        }
+
+        async function deleteAllTimetables() {
+            if (isGlobalView) return;
+            if (!confirm('Delete EVERY timetable and saved timetable configuration for this branch? This cannot be undone.')) return;
+            const res = await authFetch(`/api/timetable/all/${currentBranchId}`, { method: 'DELETE' });
+            const data = await res.json().catch(() => ({}));
+            if (res.ok) {
+                alert(`Timetable workspace cleared. ${data.slots_deleted || 0} lecture(s) removed.`);
+                refreshCurrentModule();
+            } else {
+                alert(data.detail || 'Failed to clear timetables.');
+            }
+        }
+
+        async function generateTimetableSchedule() {
+            if (isGlobalView) return;
+            const batchName = document.getElementById('ttBatchName').value.trim();
+            if (!batchName) { alert('Enter a batch name.'); return; }
+
+            const timings = [];
+            document.querySelectorAll('#ttTimingRows [data-timing-row]').forEach(row => {
+                const lecture_number = parseInt(row.querySelector('.tt-lecture-num').value, 10) || 0;
+                const time_slot = row.querySelector('.tt-time-slot').value.trim();
+                if (time_slot) timings.push({ lecture_number, time_slot });
+            });
+            if (!timings.length) { alert('Add at least one lecture timing.'); return; }
+
+            const teachers_config = [];
+            document.querySelectorAll('#teacherConfigList > div').forEach((el, idx) => {
+                const name = el.getAttribute('data-teacher');
+                const subject = el.getAttribute('data-subject');
+                const lectures_per_week = document.getElementById(`lec_${idx}`).value;
+                const unavailable_days = document.getElementById(`unav_${idx}`).value.split(',').map(s => s.trim()).filter(Boolean);
+                teachers_config.push({ name, subject, lectures_per_week, unavailable_days });
+            });
+
+            if (!confirm(`This erases any existing timetable for "${batchName}" and rebuilds it fresh from these settings - it never stacks on top of a prior run. Continue?`)) return;
+
+            const res = await authFetch('/api/timetable/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ branch_id: currentBranchId, batch_name: batchName, teachers_config, timings }),
+            });
+
+            if (res.ok) {
+                const result = await res.json();
+                let msg = `Timetable for "${batchName}" generated and saved.`;
+                if (result.warnings && result.warnings.length > 0) msg += '\\n\\nHeads up:\\n' + result.warnings.join('\\n');
+                alert(msg);
+                refreshCurrentModule();
+            } else {
+                const err = await res.json().catch(() => ({}));
+                alert(err.detail || 'Failed to generate timetable.');
+            }
+        }
+
+        function openTimetableSlotEdit(slotId) {
+            const slot = (window.ttSavedSlots || []).find(s => s.id === slotId);
+            if (!slot) return;
+            window.activeTimetableSlotId = slotId;
+            document.getElementById('ttSlotEditDay').value = slot.day || '';
+            document.getElementById('ttSlotEditTime').value = slot.time_slot || '';
+            document.getElementById('ttSlotEditSubject').value = slot.subject || '';
+            document.getElementById('ttSlotEditTeacher').value = slot.teacher || '';
+            document.getElementById('ttSlotEditRoom').value = slot.room || '';
+            document.getElementById('timetableSlotEditModal').classList.remove('hidden');
+        }
+
+        function closeTimetableSlotEdit() { document.getElementById('timetableSlotEditModal').classList.add('hidden'); }
+
+        async function submitTimetableSlotEdit(e) {
+            e.preventDefault();
+            const slotId = window.activeTimetableSlotId;
+            const payload = {
+                day: document.getElementById('ttSlotEditDay').value,
+                time_slot: document.getElementById('ttSlotEditTime').value,
+                subject: document.getElementById('ttSlotEditSubject').value,
+                teacher: document.getElementById('ttSlotEditTeacher').value,
+                room: document.getElementById('ttSlotEditRoom').value,
+            };
+            const res = await authFetch(`/api/timetable/slots/${slotId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            if (res.ok) {
+                closeTimetableSlotEdit();
+                refreshCurrentModule();
+            } else {
+                alert('Failed to update slot.');
+            }
+        }
+
+        // ----- Record modal -----
+        function openRecordModal(moduleName, recordId) {
+            document.getElementById('recordModal').classList.remove('hidden');
+            const isEdit = recordId !== undefined && recordId !== null;
+            document.getElementById('modalTitle').textContent = isEdit ? `Edit ${moduleName} Record` : `Add New ${moduleName} Record`;
+            document.getElementById('recordSubmitBtn').textContent = isEdit ? 'Save Changes' : 'Save Record';
+            document.getElementById('recordFormError').textContent = '';
+            const fieldsContainer = document.getElementById('modalFields');
+
+            const existing = isEdit ? (moduleRecordsCache[moduleName] || []).find(r => r.id === recordId) : null;
+
+            let fieldsConfig = [];
+            if (moduleName === 'students') {
+                fieldsConfig = [
+                    { id: 'name', label: 'Name', type: 'text', placeholder: 'Aarav Sharma' },
+                    { id: 'batch', label: 'Batch', type: 'text', placeholder: 'Batch A' },
+                    { id: 'roll_number', label: 'Roll Number', type: 'text', placeholder: '24' },
+                    { id: 'parent_contact', label: "Parent's Contact Number", type: 'text', placeholder: '+91 98765 43210' }
+                ];
+            } else if (moduleName === 'teachers') {
+                fieldsConfig = [
+                    { id: 'name', label: 'Name', type: 'text', placeholder: 'Dr. Ramesh Kumar' },
+                    { id: 'subject', label: 'Subject', type: 'text', placeholder: 'Artificial Intelligence' },
+                    { id: 'contact_number', label: 'Contact Number', type: 'text', placeholder: '+91 98765 43210' }
+                ];
+            } else if (moduleName === 'classrooms') {
+                fieldsConfig = [
+                    { id: 'room_no', label: 'Room Number', type: 'text', placeholder: 'Lecture Hall 402' },
+                    { id: 'capacity', label: 'Seating Capacity', type: 'number', placeholder: '120' }
+                ];
+            } else if (moduleName === 'syllabus') {
+                fieldsConfig = [
+                    { id: 'subject', label: 'Subject', type: 'text', placeholder: 'Data Structures & Algorithms' },
+                    { id: 'topic', label: 'Topic', type: 'text', placeholder: 'Binary Search Trees' },
+                    { id: 'teacher_name', label: "Teacher's Name", type: 'text', placeholder: 'Dr. Ramesh Kumar' },
+                    { id: 'num_lectures', label: 'Number of Lectures', type: 'number', placeholder: '4' },
+                    { id: 'lecture_date', label: 'Date', type: 'text', placeholder: '2026-09-15' }
+                ];
+            } else if (moduleName === 'attendance') {
+                fieldsConfig = [
+                    { id: 'student_name', label: 'Student Name', type: 'text', placeholder: 'Priya Patel' },
+                    { id: 'date', label: 'Date', type: 'text', placeholder: '2026-09-01' },
+                    { id: 'status', label: 'Attendance Status', type: 'text', placeholder: 'Present' }
+                ];
+            } else if (moduleName === 'invigilation') {
+                fieldsConfig = [
+                    { id: 'teacher_name', label: 'Faculty Name', type: 'text', placeholder: 'Prof. Vikram Joshi' },
+                    { id: 'exam_date', label: 'Exam Date', type: 'text', placeholder: '2026-09-15' },
+                    { id: 'room', label: 'Exam Hall', type: 'text', placeholder: 'Examination Block B' }
+                ];
+            } else if (moduleName === 'fees') {
+                fieldsConfig = [
+                    { id: 'student_name', label: 'Student Name', type: 'text', placeholder: 'Rohan Sharma' },
+                    { id: 'amount_inr', label: 'Fee Amount (INR ₹)', type: 'number', placeholder: '75000' },
+                    { id: 'status', label: 'Payment Status', type: 'text', placeholder: 'Paid / Pending' },
+                    { id: 'due_date', label: 'Due Date', type: 'text', placeholder: '2026-09-30' }
+                ];
+            }
+
+            fieldsContainer.innerHTML = fieldsConfig.map(f => `
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">${f.label}</label>
+                    <input type="${f.type}" id="field_${f.id}" required placeholder="${f.placeholder}" value="${existing && existing[f.id] !== undefined && existing[f.id] !== null ? esc(existing[f.id]) : ''}" class="w-full bg-[#0c0c0c] border gold-border rounded-xl p-3 text-sm text-gray-200 gold-border-glow focus:outline-none">
+                </div>
+            `).join('');
+
+            window.activeModalModule = moduleName;
+            window.activeModalRecordId = isEdit ? recordId : null;
+        }
+
+        function closeRecordModal() { document.getElementById('recordModal').classList.add('hidden'); }
+
+        async function submitRecordForm(e) {
+            e.preventDefault();
+            const errorEl = document.getElementById('recordFormError');
+            errorEl.textContent = '';
+            const moduleName = window.activeModalModule;
+            const recordId = window.activeModalRecordId;
+            const inputs = document.getElementById('modalFields').querySelectorAll('input');
+            const data = {};
+            inputs.forEach(input => { const key = input.id.replace('field_', ''); data[key] = input.type === 'number' ? parseFloat(input.value) : input.value; });
+
+            const formData = new FormData();
+            if (!recordId) formData.append('branch_id', currentBranchId);
+            formData.append('data_json', JSON.stringify(data));
+
+            const url = recordId ? `/api/records/${moduleName}/${recordId}` : `/api/records/${moduleName}`;
+            const method = recordId ? 'PATCH' : 'POST';
+            const res = await authFetch(url, { method, body: formData });
+
+            if (res.ok) {
+                closeRecordModal();
+                await loadModuleRecords(moduleName);
+            } else {
+                const errData = await res.json().catch(() => ({}));
+                errorEl.textContent = errData.detail || 'Failed to save record.';
+            }
+        }
+
+        // ----- Centralised Analytics -----
+        async function openCentralAnalytics() {
+            document.getElementById('centralAnalyticsModal').classList.remove('hidden');
+            await renderCentralAnalyticsModule();
+        }
+        function closeCentralAnalyticsModal() {
+            document.getElementById('centralAnalyticsModal').classList.add('hidden');
+            (window.__centralAnalyticsCharts || []).forEach(c => { try { c.destroy(); } catch (_) {} });
+            window.__centralAnalyticsCharts = [];
+        }
+
+        async function renderCentralAnalyticsModule() {
+            window.__centralAnalyticsCharts = window.__centralAnalyticsCharts || [];
+            window.__centralAnalyticsCharts.forEach(c => { try { c.destroy(); } catch (_) {} });
+            window.__centralAnalyticsCharts = [];
+            const error = document.getElementById('centralAnalyticsError');
+            const content = document.getElementById('centralAnalyticsContent');
+            if (error) error.textContent = '';
+            if (content) content.innerHTML = '<div class="glass-panel border gold-border p-10 rounded-2xl text-center text-gray-500">Loading analytics…</div>';
+            try {
+                const res = await authFetch('/api/analytics/0');
+                const data = await readApiJson(res, 'Centralised analytics request');
+                renderCentralAnalyticsContent(data);
+            } catch (err) {
+                if (error) error.textContent = err.message || 'Failed to load centralised analytics.';
+                if (content) content.innerHTML = '<div class="glass-panel border border-red-900/40 p-8 rounded-2xl text-center text-gray-500">Centralised analytics could not be loaded.</div>';
+            }
+        }
+
+        function renderCentralAnalyticsContent(d) {
+            const el = document.getElementById('centralAnalyticsContent');
+            if (!el) return;
+            const a = d.attendance || {}, f = d.fees || {}, l = d.lectures || {};
+            const trend = a.trend || [], batches = a.by_batch || [], revenue = (f.revenue || []).slice().reverse();
+
+            el.innerHTML = `
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    ${centralStatCard('Students', d.students_total)}
+                    ${centralStatCard('Teachers', d.teachers_total)}
+                    ${centralStatCard('Classrooms', d.classrooms_total)}
+                    ${centralStatCard('Fees Pending', '₹' + Number(f.pending_amount || 0).toLocaleString('en-IN'))}
+                </div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="glass-panel border gold-border rounded-2xl p-6">
+                        <div class="text-xs uppercase tracking-widest text-gray-400 font-bold mb-4">Attendance - Last 7 Days</div>
+                        <canvas id="centralAttendanceChart" height="220"></canvas>
+                    </div>
+                    <div class="glass-panel border gold-border rounded-2xl p-6">
+                        <div class="text-xs uppercase tracking-widest text-gray-400 font-bold mb-4">Attendance by Batch</div>
+                        <canvas id="centralBatchChart" height="220"></canvas>
+                    </div>
+                    <div class="glass-panel border gold-border rounded-2xl p-6 md:col-span-2">
+                        <div class="text-xs uppercase tracking-widest text-gray-400 font-bold mb-4">Fee Revenue (Recent)</div>
+                        <canvas id="centralRevenueChart" height="180"></canvas>
+                    </div>
+                </div>
+            `;
+
+            const goldLine = '#d4af37';
+            if (!window.Chart) {
+                const error = document.getElementById('centralAnalyticsError');
+                if (error) error.textContent = 'Analytics charts are unavailable because Chart.js did not load.';
+                return;
+            }
+
+            const gridColor = 'rgba(212,175,55,0.12)';
+            const tickColor = '#9ca3af';
+
+            const attendanceCtx = document.getElementById('centralAttendanceChart');
+            if (attendanceCtx && window.Chart) {
+                window.__centralAnalyticsCharts.push(new window.IBEXChart(attendanceCtx, {
+                    type: 'line',
+                    data: {
+                        labels: trend.map(t => t.label),
+                        datasets: [{ label: 'Present %', data: trend.map(t => t.pct), borderColor: goldLine, backgroundColor: 'rgba(212,175,55,0.15)', tension: 0.35, fill: true }]
+                    },
+                    options: {
+                        plugins: { legend: { labels: { color: tickColor } } },
+                        scales: { x: { ticks: { color: tickColor }, grid: { color: gridColor } }, y: { ticks: { color: tickColor }, grid: { color: gridColor }, min: 0, max: 100 } }
+                    }
+                }));
+            }
+
+            const batchCtx = document.getElementById('centralBatchChart');
+            if (batchCtx && window.Chart) {
+                window.__centralAnalyticsCharts.push(new window.IBEXChart(batchCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: batches.map(b => b.batch),
+                        datasets: [{ label: 'Attendance %', data: batches.map(b => b.pct), backgroundColor: goldLine }]
+                    },
+                    options: {
+                        plugins: { legend: { display: false } },
+                        scales: { x: { ticks: { color: tickColor }, grid: { display: false } }, y: { ticks: { color: tickColor }, grid: { color: gridColor }, min: 0, max: 100 } }
+                    }
+                }));
+            }
+
+            const revenueCtx = document.getElementById('centralRevenueChart');
+            if (revenueCtx && window.Chart) {
+                window.__centralAnalyticsCharts.push(new window.IBEXChart(revenueCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: revenue.map(r => r.date),
+                        datasets: [{ label: 'Revenue (₹)', data: revenue.map(r => r.amount), backgroundColor: 'rgba(212,175,55,0.65)' }]
+                    },
+                    options: {
+                        plugins: { legend: { display: false } },
+                        scales: { x: { ticks: { color: tickColor }, grid: { display: false } }, y: { ticks: { color: tickColor }, grid: { color: gridColor } } }
+                    }
+                }));
+            }
+        }
+
+        function centralStatCard(label, value) {
+            return `<div class="glass-panel border gold-border rounded-2xl p-5"><div class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">${esc(label)}</div><div class="text-3xl font-black gold-gradient-text mt-1">${esc(value)}</div></div>`;
+        }
+
+        // ===== Exam Results & History (global) =====
+        window.renderResults = async function() {
+            // We reuse the existing renderResults function from the inline script.
+            // That script is already present in the page, so we just forward.
+            if (typeof renderResults === 'function') {
+                await renderResults();
+            } else {
+                // Fallback: dynamic import or placeholder
+                document.getElementById('mainContent').innerHTML = '<div class="glass-panel border gold-border p-10 rounded-2xl text-center text-gray-500">Results module loading…</div>';
+            }
+        };
+
+        window.renderHistory = async function() {
+            if (typeof renderHistory === 'function') {
+                await renderHistory();
+            } else {
+                document.getElementById('mainContent').innerHTML = '<div class="glass-panel border gold-border p-10 rounded-2xl text-center text-gray-500">History module loading…</div>';
+            }
+        };
+
+        // ---- (The actual renderResults and renderHistory are defined in the separate <script> block below) ----
+        // They are kept as is – the key is that they are assigned to window above.
+        // For completeness, we include them here (they are already in the HTML).
+
+        // ---- Final: Parallax search (homepage) runtime ----
+        const oldHome = renderHomeModule;
+        renderHomeModule = function(c) {
+            oldHome(c);
+            setTimeout(installSearch, 0);
+        };
+
+        function installSearch() {
+            const main = document.getElementById('mainContent');
+            if (!main) return;
+            if (document.getElementById('homeParallaxSearch')) return;
+            const hero = main.querySelector('.glass-panel');
+            if (!hero) return;
+            const w = document.createElement('div');
+            w.id = 'homeParallaxSearch';
+            w.className = 'parallax-search-shell';
+            w.innerHTML = `
+                <div class="parallax-search-kicker">PARALLAX · INSTITUTE SEARCH</div>
+                <div class="parallax-search-row">
+                    <input id="homeParallaxSearchInput" autocomplete="off" placeholder="Search students, teachers, fees, attendance, classrooms…">
+                    <button type="button">Search</button>
+                </div>
+                <div id="homeParallaxSearchResults" class="parallax-search-results hidden"></div>
+            `;
+            hero.after(w);
+            w.querySelector('button').onclick = searchHome;
+            w.querySelector('input').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); searchHome(); } };
+        }
+
+        async function searchHome() {
+            const inputEl = document.getElementById('homeParallaxSearchInput');
+            const out = document.getElementById('homeParallaxSearchResults');
+            if (!out) return;
+            const q = (inputEl && inputEl.value || '').trim();
+            if (!q) { out.classList.add('hidden'); out.innerHTML = ''; return; }
+            if (!currentBranchId) { out.classList.remove('hidden'); out.innerHTML = '<div class="text-xs text-gray-500 p-3">Select a branch first.</div>'; return; }
+            out.classList.remove('hidden');
+            out.innerHTML = '<div class="text-xs text-gray-500 p-3">Searching institute data…</div>';
+
+            try {
+                const res = await authFetch(`/api/search/${currentBranchId}?q=${encodeURIComponent(q)}`);
+                const data = await readApiJson(res, 'Institute search');
+                const hits = Array.isArray(data.results) ? data.results : [];
+                if (hits.length) {
+                    out.innerHTML = hits.map(h => `
+                        <button class="parallax-search-hit" onclick="switchModule('${h.module}')">
+                            <span>${esc(h.label)}</span>
+                            <b>${esc(h.primary || 'Record')}</b>
+                            <small>${esc(h.details || '')}</small>
+                        </button>
+                    `).join('');
+                } else {
+                    out.innerHTML = '<div class="text-xs text-gray-500 p-3">No matching records found in this branch.</div>';
+                }
+            } catch (err) {
+                console.error('Homepage Parallax search failed:', err);
+                out.innerHTML = `<div class="text-xs text-red-400 p-3">Search failed: ${esc(err.message || 'Please try again.')}</div>`;
+            }
+        }
+
+        // ---- Delete Parallax history (runtime) ----
+        const oldParallaxThread = renderParallaxThread;
+        renderParallaxThread = function() {
+            oldParallaxThread();
+            const t = document.getElementById('parallaxThread');
+            if (!t) return;
+            if (!window.parallaxHistory.length) t.innerHTML = '';
+            const f = document.getElementById('parallaxForm');
+            if (f && !document.getElementById('parallaxDeleteRuntime')) {
+                const b = document.createElement('button');
+                b.id = 'parallaxDeleteRuntime';
+                b.type = 'button';
+                b.textContent = 'Delete Chat History';
+                b.className = 'text-xs text-red-300 border border-red-900/40 bg-[#160d0d] px-3 py-2 rounded-lg';
+                b.onclick = async () => {
+                    if (!confirm('Delete this Parallax chat history?')) return;
+                    window.parallaxHistory = [];
+                    renderParallaxThread();
+                    try { await authFetch(`/api/assistant/history/${currentBranchId}`, { method: 'DELETE' }); } catch (_) {}
+                };
+                f.parentElement.insertBefore(b, f);
+            }
+        };
+
+        console.log('I.B.E.X. fully loaded – all modules fixed.');
     </script>
+
+    <!-- Embedded exam results/history scripts (already in the original) -->
+    <!-- These are unchanged, but we ensure they are called via window.renderResults / renderHistory -->
+    <script>
+        // === EXAM RESULTS / HISTORY UPGRADE ===
+        (() => {
+          const HEAD = 'examination';
+          const MODULES = { results: 'Results', history: 'History' };
+          let examRoot = null;
+          let editingResult = null;
+          let editingHistory = null;
+
+          const escExam = (v) => {
+            if (typeof esc === 'function') return esc(v ?? '');
+            return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+          };
+          const api = async (url, options={}) => {
+            const r = await authFetch(url, options);
+            const text = await r.text();
+            let data = {};
+            try { data = text ? JSON.parse(text) : {}; } catch (_) { data = {detail:text}; }
+            if (!r.ok) throw new Error(data.detail || `Request failed (${r.status})`);
+            return data;
+          };
+          const branchId = () => {
+            if (typeof currentBranchId !== 'undefined' && currentBranchId) return currentBranchId;
+            const el = document.querySelector('[data-branch-id].active, select[id*=branch]');
+            return el?.value || el?.dataset?.branchId || 1;
+          };
+          const contentHost = () => document.querySelector('main') || document.querySelector('#mainContent') || document.querySelector('#content') || document.body;
+
+          function header(title, subtitle='') {
+            return `<div class="mb-6 flex items-start justify-between gap-4"><div><h2 class="text-2xl font-black uppercase gold-gradient-text tracking-wide">${title}</h2><p class="text-sm text-gray-500 mt-2">${subtitle}</p></div></div>`;
+          }
+          function card(inner) { return `<div class="bg-[#0b0b0b] border border-[#29230f] rounded-2xl p-5 shadow-2xl">${inner}</div>`; }
+          function field(id,label,type='text',placeholder='') { return `<label class="block"><span class="block text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2">${label}</span><input id="${id}" type="${type}" placeholder="${placeholder}" class="w-full bg-[#050505] border border-gray-800 rounded-xl px-3 py-3 text-sm text-gray-200 outline-none focus:border-yellow-700"></label>`; }
+
+          window.renderResults = async function() {
+            const host=contentHost(); examRoot=document.createElement('div'); examRoot.id='examUpgradeRoot';
+            host.innerHTML=''; host.appendChild(examRoot);
+            examRoot.innerHTML = header('Results','Enter the paper details, then record marks for every student in the selected batch.') + card(`
+              <div class="grid md:grid-cols-5 gap-3">
+                ${field('erBatch','Batch name','text','e.g. JEE 2026-A')}
+                ${field('erSubjects','Subject(s)','text','Physics, Chemistry')}
+                ${field('erTopics','Topic(s)','text','Kinematics, NLM')}
+                ${field('erDate','Exam date','date')}
+                ${field('erOverall','Overall marks','number','100')}
+              </div>
+              <div class="mt-4 flex gap-2"><button id="erLoad" class="px-4 py-2 rounded-xl bg-yellow-700/20 border border-yellow-800 text-yellow-500 font-bold text-xs uppercase tracking-widest">Load Students</button><button id="erPdf" class="px-4 py-2 rounded-xl border border-gray-800 text-gray-300 font-bold text-xs uppercase tracking-widest">Download PDF</button></div>
+              <div id="erMeta" class="mt-5 hidden p-4 rounded-xl bg-[#080808] border border-gray-900 grid md:grid-cols-4 gap-4 text-sm"></div>
+              <div id="erTable" class="mt-5 overflow-x-auto"></div>`);
+            document.getElementById('erLoad').onclick=loadResultsStudents;
+            document.getElementById('erPdf').onclick=pdfResults;
+            await loadExistingResultGroups();
+          };
+
+          async function loadResultsStudents() {
+            try {
+              const batch=document.getElementById('erBatch').value.trim(), overall=Number(document.getElementById('erOverall').value);
+              if(!batch || !overall || overall<=0) throw new Error('Enter batch name and a valid overall marks value.');
+              const students=await api(`/api/exam/results/students/${encodeURIComponent(branchId())}?batch=${encodeURIComponent(batch)}`);
+              const meta={batch,subjects:document.getElementById('erSubjects').value.trim(),topics:document.getElementById('erTopics').value.trim(),date:document.getElementById('erDate').value,overall};
+              window.__examResultMeta=meta; window.__examStudents=students.students||[];
+              document.getElementById('erMeta').classList.remove('hidden');
+              document.getElementById('erMeta').innerHTML=`<div><b class="text-gray-500">Batch</b><div>${escExam(meta.batch)}</div></div><div><b class="text-gray-500">Subject(s)</b><div>${escExam(meta.subjects)}</div></div><div><b class="text-gray-500">Topic(s)</b><div>${escExam(meta.topics)}</div></div><div><b class="text-gray-500">Exam date</b><div>${escExam(meta.date)}</div></div>`;
+              document.getElementById('erTable').innerHTML=`<table id="erStudentTable" class="w-full text-sm"><thead><tr class="text-left text-[10px] uppercase tracking-widest text-gray-500 border-b border-gray-900"><th class="p-3">Student</th><th class="p-3">Roll Number</th><th class="p-3">Marks / ${overall}</th><th class="p-3">Action</th></tr></thead><tbody>${(students.students||[]).map(s=>`<tr data-student="${s.id}" class="border-b border-gray-950"><td class="p-3 text-gray-200">${escExam(s.name)}</td><td class="p-3 text-gray-500">${escExam(s.roll_number)}</td><td class="p-3"><input data-mark-for="${s.id}" type="number" min="0" max="${overall}" step="0.01" class="w-32 bg-[#050505] border border-gray-800 rounded-lg px-3 py-2" placeholder="Marks"></td><td class="p-3"><button onclick="saveExamStudent(${s.id})" class="text-yellow-600 font-bold text-xs">SAVE</button></td></tr>`).join('')}</tbody></table>`;
+            } catch(e) { alert(e.message); }
+          }
+          window.saveExamStudent=async(id)=>{ try { const s=(window.__examStudents||[]).find(x=>x.id===id), m=document.querySelector(`[data-mark-for="${id}"]`).value; if(m==='') throw new Error('Enter marks first.'); const meta=window.__examResultMeta; await api('/api/exam/results',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({branch_id:Number(branchId()),batch_name:meta.batch,subjects:meta.subjects,topics:meta.topics,exam_date:meta.date,overall_marks:meta.overall,student_id:id,student_name:s.name,roll_number:s.roll_number,marks:Number(m)})}); alert('Result saved.'); await loadExistingResultGroups(); } catch(e){ alert(e.message); } };
+
+          async function loadExistingResultGroups(){
+            try { const rows=await api(`/api/exam/results/${encodeURIComponent(branchId())}`); window.__examResultRows=rows; const host=document.getElementById('erTable'); if(!host) return; if(!rows.length) return; host.insertAdjacentHTML('beforeend',`<div class="mt-8"><div class="flex justify-between items-center mb-3"><h3 class="font-bold text-gray-300">Saved Records</h3><button onclick="pdfResults()" class="text-xs text-yellow-600 font-bold">DOWNLOAD PDF</button></div><div class="overflow-x-auto"><table id="erSavedTable" class="w-full text-sm"><thead><tr class="text-left text-[10px] uppercase tracking-widest text-gray-500 border-b border-gray-900"><th class="p-3">Batch</th><th class="p-3">Subject(s)</th><th class="p-3">Topic(s)</th><th class="p-3">Date</th><th class="p-3">Student</th><th class="p-3">Marks</th><th class="p-3">Actions</th></tr></thead><tbody>${rows.map(r=>`<tr class="border-b border-gray-950"><td class="p-3">${escExam(r.batch_name)}</td><td class="p-3">${escExam(r.subjects)}</td><td class="p-3">${escExam(r.topics)}</td><td class="p-3">${escExam(r.exam_date)}</td><td class="p-3">${escExam(r.student_name)}</td><td class="p-3">${r.marks ?? '—'} / ${r.overall_marks}</td><td class="p-3 whitespace-nowrap"><button onclick="editExamResult(${r.id})" class="text-yellow-600 mr-3 text-xs font-bold">EDIT</button><button onclick="deleteExamResult(${r.id})" class="text-red-500 text-xs font-bold">DELETE</button></td></tr>`).join('')}</tbody></table></div></div>`); } catch(e) { console.error(e); }
+          }
+          window.deleteExamResult=async(id)=>{if(!confirm('Delete this result record?'))return;try{await api(`/api/exam/results/${id}`,{method:'DELETE'});await renderResults();}catch(e){alert(e.message)}};
+          window.editExamResult=async(id)=>{const r=(window.__examResultRows||[]).find(x=>x.id===id);if(!r)return;document.getElementById('erBatch').value=r.batch_name;document.getElementById('erSubjects').value=r.subjects;document.getElementById('erTopics').value=r.topics;document.getElementById('erDate').value=r.exam_date;document.getElementById('erOverall').value=r.overall_marks;await loadResultsStudents();const inp=document.querySelector(`[data-mark-for="${r.student_id}"]`);if(inp)inp.value=r.marks??'';window.__examEditingId=id;document.getElementById('erLoad').textContent='UPDATE STUDENT';document.getElementById('erLoad').onclick=async()=>{try{const s=(window.__examStudents||[]).find(x=>x.id===r.student_id),m=Number(document.querySelector(`[data-mark-for="${r.student_id}"]`).value),meta=window.__examResultMeta;await api(`/api/exam/results/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({branch_id:Number(branchId()),batch_name:meta.batch,subjects:meta.subjects,topics:meta.topics,exam_date:meta.date,overall_marks:Number(meta.overall),student_id:r.student_id,student_name:s.name,roll_number:s.roll_number,marks:m})});await renderResults();}catch(e){alert(e.message)}}};
+
+          function pdfResults(){ const rows=window.__examResultRows||[]; if(!rows.length){alert('No saved result records to download.');return;} const J=window.jspdf; if(!J?.jsPDF){alert('PDF library is unavailable.');return;} const doc=new J.jsPDF('l'); const startY=ibexPdfHeader(doc,'Examination Results','Recorded marks across all saved batches'); doc.autoTable({startY,head:[['Batch','Subject(s)','Topic(s)','Date','Student','Roll','Marks']],body:rows.map(r=>[r.batch_name,r.subjects,r.topics,r.exam_date,r.student_name,r.roll_number||'',`${r.marks??''} / ${r.overall_marks}`]),...IBEX_PDF_TABLE_STYLE});doc.save('exam-results.pdf'); }
+          window.pdfResults=pdfResults;
+
+          window.renderHistory = async function(){const host=contentHost();examRoot=document.createElement('div');examRoot.id='examUpgradeRoot';host.innerHTML='';host.appendChild(examRoot);examRoot.innerHTML=header('History','Keep a clean record of every examination conducted.')+card(`<div class="grid md:grid-cols-4 gap-3">${field('ehSubject','Subject')}${field('ehTopic','Topic')}${field('ehBatch','Batch name')}${field('ehDate','Exam date','date')}</div><div class="mt-4 flex gap-2"><button id="ehSave" class="px-4 py-2 rounded-xl bg-yellow-700/20 border border-yellow-800 text-yellow-500 font-bold text-xs uppercase tracking-widest">Save Record</button><button onclick="pdfHistory()" class="px-4 py-2 rounded-xl border border-gray-800 text-gray-300 font-bold text-xs uppercase tracking-widest">Download PDF</button></div><div id="ehTable" class="mt-6 overflow-x-auto"></div>`);document.getElementById('ehSave').onclick=saveHistory;await loadHistory();}
+          async function saveHistory(){try{const p={branch_id:Number(branchId()),subject:document.getElementById('ehSubject').value.trim(),topic:document.getElementById('ehTopic').value.trim(),batch_name:document.getElementById('ehBatch').value.trim(),exam_date:document.getElementById('ehDate').value};if(!p.subject||!p.topic||!p.batch_name||!p.exam_date)throw new Error('Fill all History fields.');if(window.__historyEditingId)await api(`/api/exam/history/${window.__historyEditingId}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});else await api('/api/exam/history',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});window.__historyEditingId=null;await loadHistory();}catch(e){alert(e.message)}}
+          async function loadHistory(){try{const rows=await api(`/api/exam/history/${encodeURIComponent(branchId())}`);window.__examHistoryRows=rows;document.getElementById('ehTable').innerHTML=`<table id="ehSavedTable" class="w-full text-sm"><thead><tr class="text-left text-[10px] uppercase tracking-widest text-gray-500 border-b border-gray-900"><th class="p-3">Subject</th><th class="p-3">Topic</th><th class="p-3">Batch</th><th class="p-3">Exam date</th><th class="p-3">Actions</th></tr></thead><tbody>${rows.map(r=>`<tr class="border-b border-gray-950"><td class="p-3">${escExam(r.subject)}</td><td class="p-3">${escExam(r.topic)}</td><td class="p-3">${escExam(r.batch_name)}</td><td class="p-3">${escExam(r.exam_date)}</td><td class="p-3"><button onclick="editExamHistory(${r.id})" class="text-yellow-600 mr-3 text-xs font-bold">EDIT</button><button onclick="deleteExamHistory(${r.id})" class="text-red-500 text-xs font-bold">DELETE</button></td></tr>`).join('')}</tbody></table>`;}catch(e){console.error(e)}}
+          window.editExamHistory=(id)=>{const r=(window.__examHistoryRows||[]).find(x=>x.id===id);if(!r)return;document.getElementById('ehSubject').value=r.subject;document.getElementById('ehTopic').value=r.topic;document.getElementById('ehBatch').value=r.batch_name;document.getElementById('ehDate').value=r.exam_date;window.__historyEditingId=id;document.getElementById('ehSave').textContent='Update Record';};
+          window.deleteExamHistory=async(id)=>{if(!confirm('Delete this history record?'))return;try{await api(`/api/exam/history/${id}`,{method:'DELETE'});await loadHistory()}catch(e){alert(e.message)}};
+          window.pdfHistory=()=>{const rows=window.__examHistoryRows||[];if(!rows.length){alert('No History records to download.');return;}const J=window.jspdf;if(!J?.jsPDF){alert('PDF library is unavailable.');return;}const doc=new J.jsPDF('l');const startY=ibexPdfHeader(doc,'Examination History','Every examination conducted, on record');doc.autoTable({startY,head:[['Subject','Topic','Batch','Exam Date']],body:rows.map(r=>[r.subject,r.topic,r.batch_name,r.exam_date]),...IBEX_PDF_TABLE_STYLE});doc.save('exam-history.pdf');};
+        })();
+    </script>
+
 </body>
 </html>
