@@ -197,6 +197,72 @@
         .global-readonly .gold-bg { opacity: .45; pointer-events: none; }
         @media (min-width: 1024px) { #mainContent { padding: 1.5rem 2rem; } }
 
+        /* --- Mobile responsive overrides --- */
+        #mobileSidebarToggle {
+            display: none;
+            width: 34px;
+            height: 34px;
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            border-radius: 6px;
+            border: 1px solid rgba(212,175,55,0.3);
+            background: #1a1a1a;
+            color: #d4af37;
+        }
+        #sidebarBackdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 45;
+        }
+        @media (max-width: 768px) {
+            #mobileSidebarToggle { display: flex; }
+
+            header { flex-wrap: wrap; row-gap: 0.5rem; padding: 0.5rem 1rem !important; }
+            header > div { flex-wrap: wrap; row-gap: 0.5rem; }
+            #headerInstituteName { font-size: 1.5rem !important; }
+            .user-info-box { padding-left: 0.75rem; margin-left: 0.25rem; min-height: auto; }
+
+            /* Sidebar becomes a slide-in overlay instead of pushing content */
+            #moduleSidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                z-index: 50;
+                width: 78vw !important;
+                max-width: 300px;
+                min-width: 0 !important;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                padding: 0 !important;
+            }
+            #moduleSidebar:not(.sidebar-collapsed) {
+                transform: translateX(0);
+            }
+            #moduleSidebar.sidebar-collapsed {
+                width: 78vw !important;
+                max-width: 300px;
+            }
+            #moduleSidebar:not(.sidebar-collapsed) .sidebar-fade-text,
+            #moduleSidebar:not(.sidebar-collapsed) .sidebar-item,
+            #moduleSidebar:not(.sidebar-collapsed) .module-head-group {
+                opacity: 1;
+                pointer-events: auto;
+            }
+            #moduleSidebar:not(.sidebar-collapsed) ~ #sidebarBackdrop,
+            body:has(#moduleSidebar:not(.sidebar-collapsed)) #sidebarBackdrop {
+                display: block;
+            }
+            #sidebarCollapseButton { display: none; }
+            #mainContent { padding: 1rem !important; margin-left: 0 !important; }
+
+            .branch-selector-stack { max-width: 140px; }
+        }
+
         .head-chevron { transition: transform .15s ease; }
         .rotate-180 { transform: rotate(180deg); }
 
@@ -426,6 +492,7 @@
     <div id="appContainer" class="min-h-screen flex flex-col hidden">
         <header class="border-b gold-border flex justify-between items-center sticky top-0 z-40" style="background:rgba(10,3,3,0.92); padding: 0.5rem 1.5rem;">
             <div class="flex items-center space-x-4">
+                <button id="mobileSidebarToggle" type="button" aria-label="Open menu" title="Menu" onclick="toggleSidebar()">☰</button>
                 <div class="group flex items-center space-x-2">
                     <h1 id="headerInstituteName" onclick="openRenameInstituteModal()" title="Click to rename your institute" class="editable-name command-heading-font text-5xl gold-gradient-text tracking-tight leading-none">—</h1>
                     <button onclick="openRenameInstituteModal()" title="Rename institute" class="text-gray-600 hover:text-yellow-500 text-sm fast-transition opacity-0 group-hover:opacity-100">✎</button>
@@ -466,6 +533,7 @@
                 </div>
             </nav>
 
+            <div id="sidebarBackdrop" onclick="toggleSidebar()"></div>
             <main class="flex-1 overflow-y-auto" id="mainContent" style="background:rgba(0,0,0,0.15);"></main>
         </div>
     </div>
@@ -603,7 +671,7 @@
                 </div>
                 <button onclick="closeAttendanceHistoryModal()" class="text-gray-400 hover:text-white text-lg font-bold">✕</button>
             </div>
-            <div id="attendanceHistorySummary" class="grid grid-cols-3 gap-3 my-5"></div>
+            <div id="attendanceHistorySummary" class="grid grid-cols-1 sm:grid-cols-3 gap-3 my-5"></div>
             <div id="attendanceHistoryBody" class="space-y-1 max-h-[45vh] overflow-y-auto pr-1"></div>
             <button onclick="exportAttendanceHistoryPDF()" class="mt-5 w-full bg-[#141414] hover:bg-[#1f1f1f] gold-gradient-text border gold-border font-extrabold py-3 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">Export PDF</button>
         </div>
@@ -770,6 +838,7 @@
             document.getElementById('authOverlay').classList.add('hidden');
             document.getElementById('appContainer').classList.remove('hidden');
             initApp();
+            applyResponsiveSidebarDefault();
         }
 
         async function handleLogout() {
@@ -809,6 +878,7 @@
                     document.getElementById('authOverlay').classList.add('hidden');
                     document.getElementById('appContainer').classList.remove('hidden');
                     initApp();
+                    applyResponsiveSidebarDefault();
                 }
             } catch (e) { /* not logged in */ }
         })();
@@ -917,6 +987,20 @@
             document.querySelectorAll('.sidebar-item').forEach(btn => btn.classList.remove('active'));
             refreshCurrentModule();
         }
+
+        function applyResponsiveSidebarDefault() {
+            const sidebar = document.getElementById('moduleSidebar');
+            const button = document.getElementById('sidebarCollapseButton');
+            if (!sidebar) return;
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('sidebar-collapsed');
+                if (button) { button.textContent = '›'; button.title = 'Expand sidebar'; }
+            } else {
+                sidebar.classList.remove('sidebar-collapsed');
+                if (button) { button.textContent = '‹'; button.title = 'Collapse sidebar'; }
+            }
+        }
+        window.addEventListener('resize', applyResponsiveSidebarDefault);
 
         function toggleSidebar() {
             const sidebar = document.getElementById('moduleSidebar');
