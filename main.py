@@ -2013,9 +2013,9 @@ def read_root():
 
 HTML_CONTENT = Path(__file__).with_name("index.html").read_text(encoding="utf-8")
 
-# === EXAM RESULTS / HISTORY UPGRADE ===
-# Persistent exam result and exam-history records. This block is intentionally
-# additive so existing application code/data remains untouched.
+# ---------------------------------------------------------------------------
+# Examination module (Results / History) — single canonical implementation
+# ---------------------------------------------------------------------------
 
 EXAM_RESULTS_TABLE = """
 CREATE TABLE IF NOT EXISTS exam_results (
@@ -2178,7 +2178,7 @@ def delete_exam_result(result_id: int, institute: CurrentInstitute = Depends(req
     conn = get_conn()
     try:
         cur = conn.cursor()
-        cur.execute("DELETE FROM exam_results WHERE id=%s AND branch_id IN (SELECT id FROM branches WHERE institute_id=%s) RETURNING id", (result_id,institute.id))
+        cur.execute("DELETE FROM exam_results WHERE id=%s AND branch_id IN (SELECT id FROM branches WHERE tenant_id=%s) RETURNING id", (result_id,institute.id))
         if not cur.fetchone(): raise HTTPException(status_code=404, detail="Result record not found")
         conn.commit(); return {"status":"success"}
     finally:
@@ -2225,226 +2225,8 @@ def delete_exam_history(history_id: int, institute: CurrentInstitute = Depends(r
     conn = get_conn()
     try:
         cur=conn.cursor()
-        cur.execute("DELETE FROM exam_history WHERE id=%s AND branch_id IN (SELECT id FROM branches WHERE institute_id=%s) RETURNING id", (history_id,institute.id))
+        cur.execute("DELETE FROM exam_history WHERE id=%s AND branch_id IN (SELECT id FROM branches WHERE tenant_id=%s) RETURNING id", (history_id,institute.id))
         if not cur.fetchone(): raise HTTPException(status_code=404, detail="History record not found")
         conn.commit(); return {"status":"success"}
     finally:
         conn.close()
-
-
-
-# === FINAL EXAM MODULES V2 ===
-# Stable, isolated API for the Results and History screens.  These endpoints
-# intentionally use separate table names so they cannot conflict with older
-# experimental exam-module migrations.
-
-def _init_final_exam_tables():
-    conn = get_conn()
-    cur = conn.cursor()
-    cur.execute("""CREATE TABLE IF NOT EXISTS exam_results_v2 (
-        id SERIAL PRIMARY KEY,
-        branch_id INTEGER NOT NULL REFERENCES branches(id) ON DELETE CASCADE,
-        batch_name TEXT NOT NULL,
-        subjects TEXT NOT NULL,
-        topics TEXT NOT NULL,
-        exam_date TEXT NOT NULL,
-        overall_marks NUMERIC(12,2) NOT NULL,
-        student_id INTEGER REFERENCES students(id) ON DELETE SET NULL,
-        student_name TEXT NOT NULL,
-        roll_number TEXT,
-        marks NUMERIC(12,2),
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )""")
-    cur.execute("""CREATE TABLE IF NOT EXISTS exam_history_v2 (
-        id SERIAL PRIMARY KEY,
-        branch_id INTEGER NOT NULL REFERENCES branches(id) ON DELETE CASCADE,
-        subject TEXT NOT NULL,
-        topic TEXT NOT NULL,
-        batch_name TEXT NOT NULL,
-        exam_date TEXT NOT NULL,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )""")
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_exam_results_v2_branch_batch ON exam_results_v2(branch_id,batch_name)")
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_exam_history_v2_branch_date ON exam_history_v2(branch_id,exam_date)")
-    conn.commit()
-    conn.close()
-
-_init_final_exam_tables()
-
-class FinalExamResultStudent(BaseModel):
-    student_id: int | None = None
-    student_name: str
-    roll_number: str | None = None
-    marks: float | None = None
-
-class FinalExamResultsCreate(BaseModel):
-    branch_id: int
-    batch_name: str
-    subjects: str
-    topics: str
-    exam_date: str
-    overall_marks: float
-    students: list[FinalExamResultStudent]
-
-class FinalExamResultUpdate(BaseModel):
-    marks: float | None = None
-    student_name: str | None = None
-    roll_number: str | None = None
-
-class FinalExamHistoryCreate(BaseModel):
-    branch_id: int
-    subject: str
-    topic: str
-    batch_name: str
-    exam_date: str
-
-class FinalExamHistoryUpdate(BaseModel):
-    subject: str
-    topic: str
-    batch_name: str
-    exam_date: str
-
-def _final_exam_access(institute, branch_id, write=False):
-    check_module_access(institute, 'examination')
-    if write:
-        if not institute.is_owner and institute.permission != 'edit':
-            raise HTTPException(status_code=403, detail='Edit access is required')
-        verify_branch_ownership(branch_id, institute.id)
-    else:
-        verify_branch_read_access(branch_id, institute.id)
-
-def _final_mark(value, overall):
-    if value is None:
-        return None
-    value = float(value)
-    if value < 0 or value > overall:
-        raise HTTPException(status_code=400, detail=f'Marks must be between 0 and {overall:g}')
-    return value
-
-@app.get('/api/examination/results/students/{branch_id}')
-def final_exam_students(branch_id: int, batch: str, institute: CurrentInstitute = Depends(get_current_institute)):
-    _final_exam_access(institute, branch_id)
-    if not batch.strip():
-        raise HTTPException(status_code=400, detail='Batch name is required')
-    conn = get_conn()
-    try:
-        cur = conn.cursor()
-        cur.execute("""SELECT id,name,COALESCE(roll_number,'') AS roll_number
-                       FROM students
-                       WHERE branch_id=%s AND LOWER(TRIM(COALESCE(batch,'')))=LOWER(TRIM(%s))
-                       ORDER BY LOWER(COALESCE(name,'')),LOWER(COALESCE(roll_number,''))""", (branch_id,batch))
-        return [dict(r) for r in cur.fetchall()]
-    finally:
-        conn.close()
-
-@app.get('/api/examination/results/{branch_id}')
-def final_exam_results(branch_id: int, institute: CurrentInstitute = Depends(get_current_institute)):
-    _final_exam_access(institute, branch_id)
-    conn=get_conn()
-    try:
-        cur=conn.cursor()
-        cur.execute("""SELECT id,batch_name,subjects,topics,exam_date,overall_marks,
-                              student_id,student_name,roll_number,marks,created_at,updated_at
-                       FROM exam_results_v2 WHERE branch_id=%s
-                       ORDER BY exam_date DESC,batch_name,student_name,id""",(branch_id,))
-        return [dict(r) for r in cur.fetchall()]
-    finally:
-        conn.close()
-
-@app.post('/api/examination/results')
-def final_create_exam_results(payload: FinalExamResultsCreate, institute: CurrentInstitute = Depends(require_write_access)):
-    _final_exam_access(institute,payload.branch_id,write=True)
-    if not payload.batch_name.strip() or not payload.subjects.strip() or not payload.topics.strip() or not payload.exam_date.strip():
-        raise HTTPException(status_code=400,detail='Batch, subject(s), topic(s), and exam date are required')
-    overall=float(payload.overall_marks)
-    if overall<=0: raise HTTPException(status_code=400,detail='Overall marks must be greater than zero')
-    if not payload.students: raise HTTPException(status_code=400,detail='No students were supplied')
-    conn=get_conn(); ids=[]
-    try:
-        cur=conn.cursor()
-        for s in payload.students:
-            cur.execute("""INSERT INTO exam_results_v2
-                (branch_id,batch_name,subjects,topics,exam_date,overall_marks,student_id,student_name,roll_number,marks)
-                VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id""",
-                (payload.branch_id,payload.batch_name.strip(),payload.subjects.strip(),payload.topics.strip(),payload.exam_date,
-                 overall,s.student_id,s.student_name.strip(),s.roll_number or '',_final_mark(s.marks,overall)))
-            ids.append(cur.fetchone()[0])
-        conn.commit()
-    except Exception:
-        conn.rollback(); raise
-    finally:
-        conn.close()
-    return {'status':'success','ids':ids}
-
-@app.patch('/api/examination/results/{result_id}')
-def final_update_exam_result(result_id:int,payload:FinalExamResultUpdate,institute:CurrentInstitute=Depends(require_write_access)):
-    check_module_access(institute,'examination')
-    conn=get_conn()
-    try:
-        cur=conn.cursor()
-        cur.execute("""SELECT r.* FROM exam_results_v2 r JOIN branches b ON b.id=r.branch_id
-                       WHERE r.id=%s AND b.tenant_id=%s""",(result_id,institute.id))
-        row=cur.fetchone()
-        if not row: raise HTTPException(status_code=404,detail='Result record not found')
-        if payload.marks is not None: _final_mark(payload.marks,float(row['overall_marks']))
-        sets=[]; vals=[]
-        if payload.marks is not None: sets.append('marks=%s'); vals.append(payload.marks)
-        if payload.student_name is not None: sets.append('student_name=%s'); vals.append(payload.student_name.strip())
-        if payload.roll_number is not None: sets.append('roll_number=%s'); vals.append(payload.roll_number.strip())
-        if not sets: raise HTTPException(status_code=400,detail='Nothing to update')
-        sets.append('updated_at=NOW()')
-        cur.execute(f"UPDATE exam_results_v2 SET {','.join(sets)} WHERE id=%s",(*vals,result_id))
-        conn.commit(); return {'status':'updated','id':result_id}
-    finally:
-        conn.close()
-
-@app.delete('/api/examination/results/{result_id}')
-def final_delete_exam_result(result_id:int,institute:CurrentInstitute=Depends(require_write_access)):
-    check_module_access(institute,'examination')
-    conn=get_conn()
-    try:
-        cur=conn.cursor(); cur.execute("DELETE FROM exam_results_v2 WHERE id=%s AND branch_id IN (SELECT id FROM branches WHERE tenant_id=%s) RETURNING id",(result_id,institute.id))
-        if not cur.fetchone(): raise HTTPException(status_code=404,detail='Result record not found')
-        conn.commit(); return {'status':'deleted'}
-    finally: conn.close()
-
-@app.get('/api/examination/history/{branch_id}')
-def final_exam_history(branch_id:int,institute:CurrentInstitute=Depends(get_current_institute)):
-    _final_exam_access(institute,branch_id)
-    conn=get_conn()
-    try:
-        cur=conn.cursor(); cur.execute("SELECT id,subject,topic,batch_name,exam_date,created_at,updated_at FROM exam_history_v2 WHERE branch_id=%s ORDER BY exam_date DESC,id DESC",(branch_id,))
-        return [dict(r) for r in cur.fetchall()]
-    finally: conn.close()
-
-@app.post('/api/examination/history')
-def final_create_exam_history(payload:FinalExamHistoryCreate,institute:CurrentInstitute=Depends(require_write_access)):
-    _final_exam_access(institute,payload.branch_id,write=True)
-    if not all(v.strip() for v in (payload.subject,payload.topic,payload.batch_name,payload.exam_date)):
-        raise HTTPException(status_code=400,detail='All history fields are required')
-    conn=get_conn()
-    try:
-        cur=conn.cursor(); cur.execute("INSERT INTO exam_history_v2(branch_id,subject,topic,batch_name,exam_date) VALUES(%s,%s,%s,%s,%s) RETURNING id",(payload.branch_id,payload.subject.strip(),payload.topic.strip(),payload.batch_name.strip(),payload.exam_date)); rid=cur.fetchone()[0]; conn.commit(); return {'status':'success','id':rid}
-    finally: conn.close()
-
-@app.patch('/api/examination/history/{history_id}')
-def final_update_exam_history(history_id:int,payload:FinalExamHistoryUpdate,institute:CurrentInstitute=Depends(require_write_access)):
-    check_module_access(institute,'examination')
-    conn=get_conn()
-    try:
-        cur=conn.cursor(); cur.execute("UPDATE exam_history_v2 SET subject=%s,topic=%s,batch_name=%s,exam_date=%s,updated_at=NOW() WHERE id=%s AND branch_id IN (SELECT id FROM branches WHERE tenant_id=%s) RETURNING id",(payload.subject.strip(),payload.topic.strip(),payload.batch_name.strip(),payload.exam_date,history_id,institute.id));
-        if not cur.fetchone(): raise HTTPException(status_code=404,detail='History record not found')
-        conn.commit(); return {'status':'updated','id':history_id}
-    finally: conn.close()
-
-@app.delete('/api/examination/history/{history_id}')
-def final_delete_exam_history(history_id:int,institute:CurrentInstitute=Depends(require_write_access)):
-    check_module_access(institute,'examination')
-    conn=get_conn()
-    try:
-        cur=conn.cursor(); cur.execute("DELETE FROM exam_history_v2 WHERE id=%s AND branch_id IN (SELECT id FROM branches WHERE tenant_id=%s) RETURNING id",(history_id,institute.id))
-        if not cur.fetchone(): raise HTTPException(status_code=404,detail='History record not found')
-        conn.commit(); return {'status':'deleted'}
-    finally: conn.close()
