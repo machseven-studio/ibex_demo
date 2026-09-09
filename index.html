@@ -61,11 +61,71 @@
             background: rgba(10, 3, 3, 0.92);
             border-bottom-color: rgba(212, 175, 55, 0.18);
             backdrop-filter: none;
+            padding: 0.5rem 1.5rem;
         }
         #moduleSidebar {
             background: rgba(10, 3, 3, 0.88);
-            border-right-color: rgba(212, 175, 55, 0.18);
+            border-right: 1px solid rgba(212, 175, 55, 0.18);
+            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.35s ease, padding 0.35s ease;
+            will-change: width, min-width, padding;
+            overflow: hidden;
+            width: 280px;
+            min-width: 280px;
+            flex-shrink: 0;
+            position: relative;
         }
+        #moduleSidebar.sidebar-collapsed {
+            width: 0 !important;
+            min-width: 0 !important;
+            padding: 0 !important;
+            border-right: none;
+            flex: 0 0 0 !important;
+        }
+        #moduleSidebar .sidebar-fade-text,
+        #moduleSidebar .sidebar-item,
+        #moduleSidebar .module-head-group {
+            transition: opacity 0.2s ease;
+        }
+        #moduleSidebar.sidebar-collapsed .sidebar-fade-text,
+        #moduleSidebar.sidebar-collapsed .sidebar-item,
+        #moduleSidebar.sidebar-collapsed .module-head-group {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #sidebarCollapseButton {
+            position: absolute;
+            top: 10px;
+            right: -14px;
+            z-index: 30;
+            width: 28px;
+            height: 28px;
+            border: 1px solid rgba(212,175,55,.38);
+            border-radius: 999px;
+            background: #0b0b0b;
+            color: #e8c767;
+            font-size: 18px;
+            line-height: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,.45);
+            cursor: pointer;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #sidebarCollapseButton:hover { border-color: #d4af37; }
+        #moduleSidebar.sidebar-collapsed #sidebarCollapseButton {
+            transform: translateX(calc(100% + 10px));
+        }
+        /* When collapsed, float the button on the left edge of main */
+        #moduleSidebar.sidebar-collapsed + #mainContent {
+            margin-left: 0;
+        }
+
+        /* Main content – expanded when sidebar collapsed */
+        #mainContent {
+            flex: 1;
+            padding: 1.5rem 2rem;
+            background: rgba(0,0,0,0.15);
+            transition: margin-left 0.35s ease;
+        }
+
         #mainContent { background: rgba(0,0,0,0.15); }
 
         .mini-bar-track { background: rgba(212,175,55,0.08); border-radius: 999px; overflow: hidden; height: 8px; }
@@ -135,34 +195,21 @@
         .batch-group-row td { background: rgba(212, 175, 55, 0.06); }
         .global-readonly #branchSelector { color: #cbd5e1; }
         .global-readonly .gold-bg { opacity: .45; pointer-events: none; }
-        @media (min-width: 1024px) { #mainContent { padding: 2.5rem 3rem; } }
+        @media (min-width: 1024px) { #mainContent { padding: 1.5rem 2rem; } }
 
         .head-chevron { transition: transform .15s ease; }
         .rotate-180 { transform: rotate(180deg); }
 
-        #moduleSidebar {
-            transition: width .45s cubic-bezier(.65,0,.35,1), min-width .45s cubic-bezier(.65,0,.35,1), padding .45s cubic-bezier(.65,0,.35,1);
-            will-change: width, min-width, padding;
+        /* Remove icons from sidebar items */
+        #moduleGroups .sidebar-item > span:first-child {
+            display: none !important;
         }
-        #sidebarCollapseButton {
-            position: absolute;
-            top: 10px;
-            right: -14px;
-            z-index: 30;
-            width: 28px;
-            height: 28px;
-            border: 1px solid rgba(212,175,55,.38);
-            border-radius: 999px;
-            background: #0b0b0b;
-            color: #e8c767;
-            font-size: 18px;
-            line-height: 24px;
-            box-shadow: 0 4px 12px rgba(0,0,0,.45);
-            cursor: pointer;
-            transition: transform .45s cubic-bezier(.65,0,.35,1);
+        #moduleGroups .sidebar-item {
+            justify-content: flex-start !important;
+            gap: 0 !important;
         }
-        #sidebarCollapseButton:hover { border-color: #d4af37; }
 
+        /* Parallax search */
         .parallax-search-shell {
             margin-top: 1rem;
             padding: 18px;
@@ -249,6 +296,7 @@
             font-size: 10px;
         }
 
+        /* Branch selector layout */
         .branch-selector-stack {
             display: flex;
             flex-direction: column;
@@ -263,6 +311,7 @@
             flex: 0 0 auto;
         }
 
+        /* User info alignment */
         .user-info-box {
             display: flex;
             flex-direction: column;
@@ -275,11 +324,13 @@
             min-height: 60px;
         }
 
+        /* Exam modules – use glass-panel background */
         #examV2Root .examv2-card,
         #examUpgradeRoot > div {
             border-color: rgba(212,175,55,.18);
-            background: rgba(10,10,10,.92);
+            background: linear-gradient(160deg, rgba(40, 8, 8, 0.88), rgba(10, 2, 2, 0.96));
             border-radius: 16px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.55);
         }
         #examV2Root th, #examUpgradeRoot th {
             color: #6b7280;
@@ -294,19 +345,28 @@
             border-bottom: 1px solid #181818;
         }
 
-        /* Remove icons from sidebar items */
-        #moduleGroups .sidebar-item > span:first-child {
-            display: none !important;
+        /* WhatsApp module */
+        .whatsapp-card {
+            background: linear-gradient(160deg, rgba(40, 8, 8, 0.88), rgba(10, 2, 2, 0.96));
+            border: 1px solid rgba(212,175,55,.18);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
         }
-        #moduleGroups .sidebar-item {
-            justify-content: flex-start !important;
-            gap: 0 !important;
+        .whatsapp-log {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .whatsapp-log-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #1a1a1a;
+            font-size: 12px;
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <!-- LOGIN / SIGNUP OVERLAY -->
+    <!-- LOGIN / SIGNUP OVERLAY (unchanged) -->
     <div id="authOverlay" class="fixed inset-0 z-50 bg-[#0a0202]/80 flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.06)_0,transparent_70%)]"></div>
         <div class="glass-panel w-full max-w-md p-8 rounded-2xl shadow-2xl relative z-10 border gold-border">
@@ -364,10 +424,10 @@
 
     <!-- MAIN APP -->
     <div id="appContainer" class="min-h-screen flex flex-col hidden">
-        <header class="border-b gold-border px-8 py-3 flex justify-between items-center sticky top-0 z-40" style="background:rgba(10,3,3,0.92);">
+        <header class="border-b gold-border flex justify-between items-center sticky top-0 z-40" style="background:rgba(10,3,3,0.92); padding: 0.5rem 1.5rem;">
             <div class="flex items-center space-x-4">
                 <div class="group flex items-center space-x-2">
-                    <h1 id="headerInstituteName" onclick="openRenameInstituteModal()" title="Click to rename your institute" class="editable-name command-heading-font text-3xl gold-gradient-text tracking-tight leading-none">—</h1>
+                    <h1 id="headerInstituteName" onclick="openRenameInstituteModal()" title="Click to rename your institute" class="editable-name command-heading-font text-5xl gold-gradient-text tracking-tight leading-none">—</h1>
                     <button onclick="openRenameInstituteModal()" title="Rename institute" class="text-gray-600 hover:text-yellow-500 text-sm fast-transition opacity-0 group-hover:opacity-100">✎</button>
                 </div>
             </div>
@@ -393,8 +453,8 @@
         </header>
 
         <div class="flex flex-1 overflow-hidden">
-            <nav id="moduleSidebar" class="w-72 border-r gold-border flex flex-col py-6 space-y-1.5 shrink-0" style="background:rgba(10,3,3,0.88);">
-                <button id="sidebarCollapseButton" type="button" aria-label="Collapse sidebar" title="Collapse sidebar" onclick="toggleSidebar()">‹</button>
+            <nav id="moduleSidebar" class="flex flex-col py-6 space-y-1.5 shrink-0" style="background:rgba(10,3,3,0.88);">
+                <button id="sidebarCollapseButton" type="button" aria-label="Toggle sidebar" title="Collapse sidebar" onclick="toggleSidebar()">‹</button>
                 <div class="px-6 pb-1">
                     <div class="elegant-font text-3xl font-bold gold-gradient-text tracking-wide sidebar-fade-text">I.B.E.X.</div>
                 </div>
@@ -406,11 +466,11 @@
                 </div>
             </nav>
 
-            <main class="flex-1 p-10 overflow-y-auto" id="mainContent" style="background:rgba(0,0,0,0.15);"></main>
+            <main class="flex-1 overflow-y-auto" id="mainContent" style="background:rgba(0,0,0,0.15);"></main>
         </div>
     </div>
 
-    <!-- ============ MODALS ============ -->
+    <!-- MODALS (unchanged) -->
     <!-- Rename Institute Modal -->
     <div id="renameInstituteModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50">
         <div class="glass-panel border gold-border p-8 rounded-2xl w-full max-w-md shadow-2xl">
@@ -568,7 +628,7 @@
 
     <!-- ============ JAVASCRIPT ============ -->
     <script>
-        // --- Chart.js guard (fixes IBEXChart) ---
+        // --- Chart.js guard ---
         (function(){
             if (window.__ibexChartGuardInstalled) return;
             window.__ibexChartGuardInstalled = true;
@@ -596,8 +656,8 @@
         const ACCESS_HEADS = ['homepage', 'administrations', 'examination'];
         const HEAD_MODULES = {
             homepage: [['analytics', '◈', 'Analytics'], ['assistant', '✦', 'Parallax'], ['students', '🎓', 'Student Department'], ['teachers', '👨‍🏫', 'Teacher Department'], ['classrooms', '🏛️', 'Classroom Department'], ['users', '🔐', 'Manage Users']],
-            administrations: [['attendance', '📋', 'Attendance'], ['syllabus', '📚', 'Syllabus'], ['timetables', '🕒', 'Timetable'], ['fees', '💳', 'Fees']],
-            examination: [['seating', '', 'Exam Seating'], ['invigilation', '', 'Exam Invigilation'], ['results', '▣', 'Results'], ['history', '◷', 'History']]
+            administrations: [['attendance', '📋', 'Attendance'], ['syllabus', '📚', 'Syllabus'], ['timetables', '🕒', 'Timetable'], ['fees', '💳', 'Fees'], ['whatsapp', '💬', 'WhatsApp Messaging']],
+            examination: [['seating', '', 'Seating'], ['invigilation', '', 'Invigilation'], ['results', '▣', 'Results'], ['history', '◷', 'History']]
         };
         const MODULE_HEAD = Object.fromEntries(Object.entries(HEAD_MODULES).flatMap(([h, ms]) => ms.map(([m]) => [m, h])));
 
@@ -862,8 +922,9 @@
             const sidebar = document.getElementById('moduleSidebar');
             const button = document.getElementById('sidebarCollapseButton');
             if (!sidebar) return;
-            const collapsed = sidebar.classList.toggle('sidebar-collapsed');
+            sidebar.classList.toggle('sidebar-collapsed');
             if (button) {
+                const collapsed = sidebar.classList.contains('sidebar-collapsed');
                 button.textContent = collapsed ? '›' : '‹';
                 button.title = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
                 button.setAttribute('aria-label', button.title);
@@ -911,6 +972,8 @@
                     await renderAttendanceModule(container);
                 } else if (currentModule === 'seating') {
                     await renderSeatingModule(container);
+                } else if (currentModule === 'invigilation') {
+                    await renderDataModule(container, 'invigilation');
                 } else if (currentModule === 'assistant') {
                     await renderAssistantModule(container);
                 } else if (currentModule === 'central_analytics') {
@@ -919,6 +982,8 @@
                     await window.renderResults();
                 } else if (currentModule === 'history') {
                     await window.renderHistory();
+                } else if (currentModule === 'whatsapp') {
+                    await renderWhatsAppModule(container);
                 } else {
                     await renderDataModule(container, currentModule);
                 }
@@ -940,7 +1005,7 @@
             return data;
         }
 
-        // ----- Analytics module -----
+        // ----- Analytics module (unchanged) -----
         async function renderAnalyticsModule(container) {
             const renderToken = Symbol('analytics-render');
             window.__analyticsRenderToken = renderToken;
@@ -1052,11 +1117,13 @@
                     ${isGlobalView ? '<div class="border border-slate-700/60 bg-slate-950/60 rounded-xl px-5 py-3 text-xs text-slate-300">🏢 Centralized HQ mode · consolidated read-only view across every branch.</div>' : ''}
                     <div class="glass-panel border gold-border p-10 rounded-3xl relative overflow-hidden shadow-2xl">
                         <div class="max-w-4xl relative z-10 flex items-end justify-between gap-6 flex-wrap">
-                            <div class="space-y-4">
-                                <span class="text-xs uppercase tracking-widest px-3 py-1 rounded-full bg-[#1c1c1c] gold-gradient-text border gold-border font-extrabold">Executive Command Center</span>
+                            <div>
                                 <h2 class="welcome-animate command-heading-font text-5xl gold-gradient-text tracking-tight leading-tight">Welcome, ${myFullName || 'there'}</h2>
                             </div>
-                            <div id="homeIstClock" class="command-heading-font gold-gradient-text tracking-tight text-right shrink-0 whitespace-nowrap"></div>
+                            <div id="homeIstClock" class="command-heading-font gold-gradient-text tracking-tight text-right shrink-0 whitespace-nowrap">
+                                <div class="text-3xl"></div>
+                                <div class="text-3xl"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 gap-6">
@@ -1072,7 +1139,6 @@
             `;
             loadHomeStats();
             startHomeClock();
-            // Inject Parallax search (handled by runtime script)
         }
 
         let homeClockTimer = null;
@@ -1084,7 +1150,7 @@
                 const now = new Date();
                 const time = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
                 const date = now.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-                el.innerHTML = `<div class="text-3xl">${esc(time)}</div><div class="text-xs tracking-widest uppercase mt-1 opacity-80">${esc(date)} · IST</div>`;
+                el.innerHTML = `<div class="text-3xl">${esc(time)}</div><div class="text-3xl">${esc(date)} · IST</div>`;
             };
             tick();
             homeClockTimer = setInterval(tick, 1000);
@@ -1112,7 +1178,7 @@
             } catch (e) { console.error(e); }
         }
 
-        // ----- PDF / Excel exports -----
+        // ----- PDF / Excel exports (unchanged) -----
         function ibexPdfHeader(doc, title, subtitle) {
             const pageWidth = doc.internal.pageSize.getWidth();
             const pageHeight = doc.internal.pageSize.getHeight();
@@ -1502,9 +1568,13 @@
                     <div class="bg-[#0c0c0c] rounded-xl p-3 border gold-border text-center"><div class="text-[10px] text-gray-500 uppercase tracking-widest">Present</div><div class="text-xl font-black text-green-400 mt-1">${data.present_count}</div></div>
                     <div class="bg-[#0c0c0c] rounded-xl p-3 border gold-border text-center"><div class="text-[10px] text-gray-500 uppercase tracking-widest">Absent</div><div class="text-xl font-black text-red-400 mt-1">${data.absent_count}</div></div>
                 `;
-                // Fix: properly render history rows using esc on each field
-                body.innerHTML = data.history.length
-                    ? data.history.map(h => `
+                // Fix: ensure we display strings, not objects
+                const historyRows = data.history.map(h => ({
+                    date: String(h.date || ''),
+                    status: String(h.status || '')
+                }));
+                body.innerHTML = historyRows.length
+                    ? historyRows.map(h => `
                         <div class="flex items-center justify-between py-2 border-b border-gray-900">
                             <span class="text-xs text-gray-300">${esc(h.date)}</span>
                             <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full ${h.status === 'Present' ? 'bg-green-600/20 text-green-400' : 'bg-red-600/20 text-red-400'}">${esc(h.status)}</span>
@@ -1527,7 +1597,7 @@
             doc.autoTable({
                 startY,
                 head: [['Date', 'Status']],
-                body: attendanceHistoryData.history.map(h => [h.date, h.status]),
+                body: attendanceHistoryData.history.map(h => [String(h.date || ''), String(h.status || '')]),
                 ...IBEX_PDF_TABLE_STYLE,
             });
             doc.save(`${attendanceHistoryData.student_name.replace(/\s+/g, '_')}_attendance_history.pdf`);
@@ -1542,6 +1612,19 @@
             if (res.ok) {
                 attendanceMarksToday[studentName] = status;
                 renderAttendanceStudentList();
+                // If absent, trigger WhatsApp notification (backend will handle)
+                if (status === 'Absent') {
+                    // Call backend to send WhatsApp message
+                    try {
+                        await authFetch('/api/whatsapp/send-absence', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ branch_id: currentBranchId, student_name: studentName, date: attendanceToday })
+                        });
+                    } catch (e) {
+                        console.warn('WhatsApp absence notification failed:', e);
+                    }
+                }
             } else {
                 alert('Failed to mark attendance.');
             }
@@ -1630,7 +1713,7 @@
         // ----- Users -----
         const MODULE_LABELS = {
             students: 'Students', teachers: 'Teachers', classrooms: 'Classrooms', syllabus: 'Syllabus',
-            attendance: 'Attendance', analytics: 'Analytics', timetables: 'Timetable', seating: 'Exam Seating', invigilation: 'Invigilator Duty', fees: 'Fees', assistant: 'Parallax',
+            attendance: 'Attendance', analytics: 'Analytics', timetables: 'Timetable', seating: 'Seating', invigilation: 'Invigilation', fees: 'Fees', assistant: 'Parallax', whatsapp: 'WhatsApp Messaging'
         };
 
         let usersCache = [];
@@ -1868,7 +1951,7 @@
                 <div class="space-y-8">
                     <div class="flex justify-between items-center flex-wrap gap-3">
                         <div>
-                            <h2 class="text-2xl font-black uppercase gold-gradient-text tracking-wide">Exam Seating Layout</h2>
+                            <h2 class="text-2xl font-black uppercase gold-gradient-text tracking-wide">Seating Layout</h2>
                             <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest">No same-batch students side-by-side or front-back</p>
                         </div>
                     </div>
@@ -1878,8 +1961,8 @@
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                             <div><label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Exam Date</label><input id="seatExamDate" type="date" required class="w-full bg-[#0c0c0c] border gold-border rounded-xl p-3 text-sm text-gray-200 focus:outline-none"></div>
                             <div><label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Room Number</label><input id="seatRoom" type="text" required placeholder="Exam Hall 204" class="w-full bg-[#0c0c0c] border gold-border rounded-xl p-3 text-sm text-gray-200 focus:outline-none"></div>
-                            <div><label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Rows</label><input id="seatRows" type="number" min="1" max="100" value="5" required class="w-full bg-[#0c0c0c] border gold-border rounded-xl p-3 text-sm text-gray-200 focus:outline-none"></div>
-                            <div><label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Columns</label><input id="seatColumns" type="number" min="1" max="100" value="8" required class="w-full bg-[#0c0c0c] border gold-border rounded-xl p-3 text-sm text-gray-200 focus:outline-none"></div>
+                            <div><label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Rows</label><input id="seatRows" type="number" min="1" max="100" placeholder="5" class="w-full bg-[#0c0c0c] border gold-border rounded-xl p-3 text-sm text-gray-200 focus:outline-none"></div>
+                            <div><label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Columns</label><input id="seatColumns" type="number" min="1" max="100" placeholder="8" class="w-full bg-[#0c0c0c] border gold-border rounded-xl p-3 text-sm text-gray-200 focus:outline-none"></div>
                         </div>
                         <p class="text-xs text-gray-500 mt-4">Students are pulled from the current branch. The generator spaces batches so orthogonally adjacent seats never contain the same batch.</p>
                         <button onclick="generateSeatingPlan()" class="mt-5 gold-bg hover:opacity-95 text-black font-extrabold px-6 py-3 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">Generate Seating Plan</button>
@@ -1949,10 +2032,10 @@
         let ttTeachersData = [];
         let ttSavedConfigs = [];
         const TT_DEFAULT_TIMINGS = [
-            { lecture_number: 1, time_slot: '09:00 AM - 10:00 AM' },
-            { lecture_number: 2, time_slot: '10:00 AM - 11:00 AM' },
-            { lecture_number: 3, time_slot: '11:15 AM - 12:15 PM' },
-            { lecture_number: 4, time_slot: '01:15 PM - 02:15 PM' },
+            { lecture_number: 1, time_slot: '' },
+            { lecture_number: 2, time_slot: '' },
+            { lecture_number: 3, time_slot: '' },
+            { lecture_number: 4, time_slot: '' },
         ];
 
         window.renderTimetableModule = async function(container) {
@@ -1999,7 +2082,7 @@
                                     </div>` : ''}
                                     <div>
                                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Batch Name</label>
-                                        <input type="text" id="ttBatchName" placeholder="e.g. B.Tech CSE Batch A" value="B.Tech CSE Batch A" class="w-full max-w-xl bg-[#0c0c0c] border gold-border rounded-xl p-3 text-sm text-gray-200 gold-border-glow focus:outline-none relative z-10">
+                                        <input type="text" id="ttBatchName" placeholder="e.g. B.Tech CSE Batch A" class="w-full max-w-xl bg-[#0c0c0c] border gold-border rounded-xl p-3 text-sm text-gray-200 gold-border-glow focus:outline-none relative z-10">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Lecture Timings</label>
@@ -2014,7 +2097,7 @@
                                                 <div class="p-4 bg-[#0f0f0f] border gold-border rounded-xl space-y-3" data-teacher="${esc(t.name)}" data-subject="${esc(t.subject)}">
                                                     <div class="text-xs font-bold text-gray-200">${esc(t.name)} (${esc(t.subject)})</div>
                                                     <div class="grid grid-cols-2 gap-2">
-                                                        <div><label class="text-[10px] text-gray-400 uppercase">Lectures/Week</label><input type="number" id="lec_${idx}" value="3" min="1" max="5" class="w-full bg-[#070707] border gold-border rounded p-2 text-xs text-white relative z-10"></div>
+                                                        <div><label class="text-[10px] text-gray-400 uppercase">Lectures/Week</label><input type="number" id="lec_${idx}" value="" placeholder="3" min="1" max="5" class="w-full bg-[#070707] border gold-border rounded p-2 text-xs text-white relative z-10"></div>
                                                         <div><label class="text-[10px] text-gray-400 uppercase">Unavailable Days</label><input type="text" id="unav_${idx}" placeholder="e.g. Monday" class="w-full bg-[#070707] border gold-border rounded p-2 text-xs text-white relative z-10" title="Comma separated days"></div>
                                                     </div>
                                                 </div>
@@ -2083,7 +2166,7 @@
                 document.getElementById('ttBatchName').value = '';
                 setTimingRows(TT_DEFAULT_TIMINGS);
                 document.querySelectorAll('#teacherConfigList > div').forEach((el, idx) => {
-                    document.getElementById(`lec_${idx}`).value = 3;
+                    document.getElementById(`lec_${idx}`).value = '';
                     document.getElementById(`unav_${idx}`).value = '';
                 });
                 return;
@@ -2095,7 +2178,7 @@
             document.querySelectorAll('#teacherConfigList > div').forEach((el, idx) => {
                 const name = el.getAttribute('data-teacher');
                 const match = config.teachers_config.find(t => t.name === name);
-                document.getElementById(`lec_${idx}`).value = match ? match.lectures_per_week : 3;
+                document.getElementById(`lec_${idx}`).value = match ? match.lectures_per_week : '';
                 document.getElementById(`unav_${idx}`).value = (match && match.unavailable_days) ? match.unavailable_days.join(', ') : '';
             });
         }
@@ -2443,14 +2526,60 @@
             return `<div class="glass-panel border gold-border rounded-2xl p-5"><div class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">${esc(label)}</div><div class="text-3xl font-black gold-gradient-text mt-1">${esc(value)}</div></div>`;
         }
 
+        // ===== WhatsApp Module =====
+        async function renderWhatsAppModule(container) {
+            const canWrite = myPermission !== 'read_only' && !isGlobalView;
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div>
+                        <h2 class="text-2xl font-black uppercase gold-gradient-text tracking-wide">WhatsApp Messaging</h2>
+                        <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest">Send automated alerts and reminders</p>
+                    </div>
+                    <div class="whatsapp-card">
+                        <h3 class="text-sm font-extrabold gold-gradient-text uppercase tracking-wider">Fee Reminders</h3>
+                        <p class="text-xs text-gray-400 mt-1">Send WhatsApp reminders to parents whose fee due date is within 7 days.</p>
+                        ${canWrite ? `<button onclick="sendFeeReminders()" class="mt-3 gold-bg hover:opacity-95 text-black font-extrabold px-4 py-2 rounded-xl text-xs uppercase tracking-wider fast-transition shadow-lg">Send Reminders Now</button>` : '<p class="text-xs text-gray-500 mt-2">You have read-only access.</p>'}
+                        <div id="feeReminderResult" class="mt-3 text-xs text-gray-400"></div>
+                    </div>
+                    <div class="whatsapp-card">
+                        <h3 class="text-sm font-extrabold gold-gradient-text uppercase tracking-wider">Message Log</h3>
+                        <div id="whatsappLog" class="whatsapp-log">
+                            <div class="text-xs text-gray-500 p-2">No messages sent yet.</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            // Optionally load logs from backend (we'll keep it simple for now)
+        }
+
+        async function sendFeeReminders() {
+            const resultDiv = document.getElementById('feeReminderResult');
+            if (!resultDiv) return;
+            resultDiv.textContent = 'Sending reminders...';
+            try {
+                const res = await authFetch('/api/whatsapp/send-fee-reminders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ branch_id: currentBranchId })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    resultDiv.textContent = `Sent ${data.sent || 0} reminders.`;
+                } else {
+                    resultDiv.textContent = data.detail || 'Failed to send reminders.';
+                }
+            } catch (e) {
+                resultDiv.textContent = 'Error sending reminders.';
+            }
+        }
+
         // ===== Exam Results & History (global) =====
         window.renderResults = async function() {
-            // We reuse the existing renderResults function from the inline script.
-            // That script is already present in the page, so we just forward.
+            // The exam results module is already defined in the embedded script below.
+            // We'll just call it.
             if (typeof renderResults === 'function') {
                 await renderResults();
             } else {
-                // Fallback: dynamic import or placeholder
                 document.getElementById('mainContent').innerHTML = '<div class="glass-panel border gold-border p-10 rounded-2xl text-center text-gray-500">Results module loading…</div>';
             }
         };
@@ -2462,10 +2591,6 @@
                 document.getElementById('mainContent').innerHTML = '<div class="glass-panel border gold-border p-10 rounded-2xl text-center text-gray-500">History module loading…</div>';
             }
         };
-
-        // ---- (The actual renderResults and renderHistory are defined in the separate <script> block below) ----
-        // They are kept as is – the key is that they are assigned to window above.
-        // For completeness, we include them here (they are already in the HTML).
 
         // ---- Final: Parallax search (homepage) runtime ----
         const oldHome = renderHomeModule;
@@ -2554,8 +2679,7 @@
         console.log('I.B.E.X. fully loaded – all modules fixed.');
     </script>
 
-    <!-- Embedded exam results/history scripts (already in the original) -->
-    <!-- These are unchanged, but we ensure they are called via window.renderResults / renderHistory -->
+    <!-- Embedded exam results/history scripts (unchanged) -->
     <script>
         // === EXAM RESULTS / HISTORY UPGRADE ===
         (() => {
@@ -2640,6 +2764,5 @@
           window.pdfHistory=()=>{const rows=window.__examHistoryRows||[];if(!rows.length){alert('No History records to download.');return;}const J=window.jspdf;if(!J?.jsPDF){alert('PDF library is unavailable.');return;}const doc=new J.jsPDF('l');const startY=ibexPdfHeader(doc,'Examination History','Every examination conducted, on record');doc.autoTable({startY,head:[['Subject','Topic','Batch','Exam Date']],body:rows.map(r=>[r.subject,r.topic,r.batch_name,r.exam_date]),...IBEX_PDF_TABLE_STYLE});doc.save('exam-history.pdf');};
         })();
     </script>
-
 </body>
 </html>
