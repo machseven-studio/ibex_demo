@@ -80,6 +80,7 @@
             padding: 0 !important;
             border-right: none;
             flex: 0 0 0 !important;
+            overflow: visible;
         }
         #moduleSidebar .sidebar-fade-text,
         #moduleSidebar .sidebar-item,
@@ -197,20 +198,23 @@
         .global-readonly .gold-bg { opacity: .45; pointer-events: none; }
         @media (min-width: 1024px) { #mainContent { padding: 1.5rem 2rem; } }
 
-        /* --- Mobile responsive overrides --- */
+        /* --- Sidebar toggle (header button) --- */
         #mobileSidebarToggle {
-            display: none;
+            display: flex;
             width: 34px;
             height: 34px;
             flex-shrink: 0;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
             border-radius: 6px;
             border: 1px solid rgba(212,175,55,0.3);
             background: #1a1a1a;
             color: #d4af37;
+            cursor: pointer;
+            transition: background-color 0.1s ease, color 0.1s ease;
         }
+        #mobileSidebarToggle:hover { background: #252525; color: #E8C767; }
         #sidebarBackdrop {
             display: none;
             position: fixed;
@@ -219,8 +223,6 @@
             z-index: 45;
         }
         @media (max-width: 768px) {
-            #mobileSidebarToggle { display: flex; }
-
             header { flex-wrap: wrap; row-gap: 0.5rem; padding: 0.5rem 1rem !important; }
             header > div { flex-wrap: wrap; row-gap: 0.5rem; }
             #headerInstituteName { font-size: 1.5rem !important; }
@@ -493,7 +495,7 @@
     <div id="appContainer" class="min-h-screen flex flex-col hidden">
         <header class="border-b gold-border flex justify-between items-center sticky top-0 z-40" style="background:rgba(10,3,3,0.92); padding: 0.5rem 1.5rem;">
             <div class="flex items-center space-x-4">
-                <button id="mobileSidebarToggle" type="button" aria-label="Open menu" title="Menu" onclick="toggleSidebar()">☰</button>
+                <button id="mobileSidebarToggle" type="button" aria-label="Toggle sidebar" title="Toggle sidebar" onclick="toggleSidebar()">‹</button>
                 <div class="group flex items-center space-x-2">
                     <h1 id="headerInstituteName" onclick="openRenameInstituteModal()" title="Click to rename your institute" class="editable-name command-heading-font text-5xl gold-gradient-text tracking-tight leading-none">—</h1>
                     <button onclick="openRenameInstituteModal()" title="Rename institute" class="text-gray-600 hover:text-yellow-500 text-sm fast-transition opacity-0 group-hover:opacity-100">✎</button>
@@ -992,13 +994,16 @@
         function applyResponsiveSidebarDefault() {
             const sidebar = document.getElementById('moduleSidebar');
             const button = document.getElementById('sidebarCollapseButton');
+            const headerButton = document.getElementById('mobileSidebarToggle');
             if (!sidebar) return;
             if (window.innerWidth <= 768) {
                 sidebar.classList.add('sidebar-collapsed');
                 if (button) { button.textContent = '›'; button.title = 'Expand sidebar'; }
+                if (headerButton) { headerButton.textContent = '›'; headerButton.title = 'Expand sidebar'; }
             } else {
                 sidebar.classList.remove('sidebar-collapsed');
                 if (button) { button.textContent = '‹'; button.title = 'Collapse sidebar'; }
+                if (headerButton) { headerButton.textContent = '‹'; headerButton.title = 'Collapse sidebar'; }
             }
         }
         window.addEventListener('resize', applyResponsiveSidebarDefault);
@@ -1006,13 +1011,21 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('moduleSidebar');
             const button = document.getElementById('sidebarCollapseButton');
+            const headerButton = document.getElementById('mobileSidebarToggle');
             if (!sidebar) return;
             sidebar.classList.toggle('sidebar-collapsed');
+            const collapsed = sidebar.classList.contains('sidebar-collapsed');
+            const icon = collapsed ? '›' : '‹';
+            const label = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
             if (button) {
-                const collapsed = sidebar.classList.contains('sidebar-collapsed');
-                button.textContent = collapsed ? '›' : '‹';
-                button.title = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
-                button.setAttribute('aria-label', button.title);
+                button.textContent = icon;
+                button.title = label;
+                button.setAttribute('aria-label', label);
+            }
+            if (headerButton) {
+                headerButton.textContent = icon;
+                headerButton.title = label;
+                headerButton.setAttribute('aria-label', label);
             }
         }
 
@@ -1200,14 +1213,14 @@
             container.innerHTML = `
                 <div class="space-y-8">
                     ${isGlobalView ? '<div class="border border-slate-700/60 bg-slate-950/60 rounded-xl px-5 py-3 text-xs text-slate-300">🏢 Centralized HQ mode · consolidated read-only view across every branch.</div>' : ''}
-                    <div class="glass-panel border gold-border p-10 rounded-3xl relative overflow-hidden shadow-2xl">
+                    <div class="glass-panel border gold-border p-5 sm:p-10 rounded-3xl relative overflow-hidden shadow-2xl">
                         <div class="max-w-4xl relative z-10 flex items-end justify-between gap-6 flex-wrap">
                             <div>
-                                <h2 class="welcome-animate command-heading-font text-5xl gold-gradient-text tracking-tight leading-tight">Welcome, ${myFullName || 'there'}</h2>
+                                <h2 class="welcome-animate command-heading-font text-3xl sm:text-5xl gold-gradient-text tracking-tight leading-tight">Welcome, ${myFullName || 'there'}</h2>
                             </div>
-                            <div id="homeIstClock" class="command-heading-font gold-gradient-text tracking-tight text-right shrink-0 whitespace-nowrap">
-                                <div class="text-3xl"></div>
-                                <div class="text-3xl"></div>
+                            <div id="homeIstClock" class="command-heading-font gold-gradient-text tracking-tight text-right shrink-0">
+                                <div class="text-lg sm:text-3xl"></div>
+                                <div class="text-lg sm:text-3xl"></div>
                             </div>
                         </div>
                     </div>
@@ -1235,7 +1248,7 @@
                 const now = new Date();
                 const time = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
                 const date = now.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-                el.innerHTML = `<div class="text-3xl">${esc(time)}</div><div class="text-3xl">${esc(date)} · IST</div>`;
+                el.innerHTML = `<div class="text-lg sm:text-3xl">${esc(time)}</div><div class="text-xs sm:text-3xl whitespace-normal sm:whitespace-nowrap">${esc(date)} · IST</div>`;
             };
             tick();
             homeClockTimer = setInterval(tick, 1000);
@@ -2677,65 +2690,7 @@
             }
         };
 
-        // ---- Final: Parallax search (homepage) runtime ----
-        const oldHome = renderHomeModule;
-        renderHomeModule = function(c) {
-            oldHome(c);
-            setTimeout(installSearch, 0);
-        };
-
-        function installSearch() {
-            const main = document.getElementById('mainContent');
-            if (!main) return;
-            if (document.getElementById('homeParallaxSearch')) return;
-            const hero = main.querySelector('.glass-panel');
-            if (!hero) return;
-            const w = document.createElement('div');
-            w.id = 'homeParallaxSearch';
-            w.className = 'parallax-search-shell';
-            w.innerHTML = `
-                <div class="parallax-search-kicker">PARALLAX · INSTITUTE SEARCH</div>
-                <div class="parallax-search-row">
-                    <input id="homeParallaxSearchInput" autocomplete="off" placeholder="Search students, teachers, fees, attendance, classrooms…">
-                    <button type="button">Search</button>
-                </div>
-                <div id="homeParallaxSearchResults" class="parallax-search-results hidden"></div>
-            `;
-            hero.after(w);
-            w.querySelector('button').onclick = searchHome;
-            w.querySelector('input').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); searchHome(); } };
-        }
-
-        async function searchHome() {
-            const inputEl = document.getElementById('homeParallaxSearchInput');
-            const out = document.getElementById('homeParallaxSearchResults');
-            if (!out) return;
-            const q = (inputEl && inputEl.value || '').trim();
-            if (!q) { out.classList.add('hidden'); out.innerHTML = ''; return; }
-            if (!currentBranchId) { out.classList.remove('hidden'); out.innerHTML = '<div class="text-xs text-gray-500 p-3">Select a branch first.</div>'; return; }
-            out.classList.remove('hidden');
-            out.innerHTML = '<div class="text-xs text-gray-500 p-3">Searching institute data…</div>';
-
-            try {
-                const res = await authFetch(`/api/search/${currentBranchId}?q=${encodeURIComponent(q)}`);
-                const data = await readApiJson(res, 'Institute search');
-                const hits = Array.isArray(data.results) ? data.results : [];
-                if (hits.length) {
-                    out.innerHTML = hits.map(h => `
-                        <button class="parallax-search-hit" onclick="switchModule('${h.module}')">
-                            <span>${esc(h.label)}</span>
-                            <b>${esc(h.primary || 'Record')}</b>
-                            <small>${esc(h.details || '')}</small>
-                        </button>
-                    `).join('');
-                } else {
-                    out.innerHTML = '<div class="text-xs text-gray-500 p-3">No matching records found in this branch.</div>';
-                }
-            } catch (err) {
-                console.error('Homepage Parallax search failed:', err);
-                out.innerHTML = `<div class="text-xs text-red-400 p-3">Search failed: ${esc(err.message || 'Please try again.')}</div>`;
-            }
-        }
+        // ---- Parallax homepage search bar removed per request; Parallax module itself is unaffected ----
 
         // ---- Delete Parallax history (runtime) ----
         const oldParallaxThread = renderParallaxThread;
