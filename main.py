@@ -108,6 +108,11 @@ GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
 
 DESIGNATION_PRESETS = ['Admin', 'Accountant', 'Teacher', 'Head', 'Clerk', 'Custom']
 
+# WhatsApp configuration
+WHATSAPP_API_URL = os.getenv("WHATSAPP_API_URL")
+WHATSAPP_API_TOKEN = os.getenv("WHATSAPP_API_TOKEN")
+WHATSAPP_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
+
 
 # ---------------------------------------------------------------------------
 # Database setup
@@ -999,6 +1004,89 @@ def search_institute(branch_id: int, q: str = "", institute: CurrentInstitute = 
                     "details": " · ".join(parts)
                 })
         return {"results": results[:24]}
+    finally:
+        conn.close()
+
+
+# ================================
+# WHATSAPP MESSAGING ENDPOINTS
+# ================================
+
+def send_whatsapp(to_number: str, message: str) -> bool:
+    """Send a WhatsApp message via the Meta Cloud API."""
+    if not all([WHATSAPP_API_URL, WHATSAPP_API_TOKEN, WHATSAPP_PHONE_NUMBER_ID]):
+        return False
+    import requests
+    url = f"{WHATSAPP_API_URL.rstrip('/')}/{WHATSAPP_PHONE_NUMBER_ID}/messages"
+    headers = {"Authorization": f"Bearer {WHATSAPP_API_TOKEN}", "Content-Type": "application/json"}
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": to_number,
+        "type": "text",
+        "text": {"body": message}
+    }
+    try:
+        resp = requests.post(url, json=payload, headers=headers, timeout=10)
+        return resp.status_code == 201
+    except Exception:
+        return False
+
+
+@app.post("/api/whatsapp/send-absence")
+def send_absence_notification(req: dict, institute: CurrentInstitute = Depends(require_write_access)):
+    """Send a WhatsApp alert when a student is marked absent."""
+    branch_id = req.get("branch_id")
+    student_name = req.get("student_name")
+    date = req.get("date")
+    if not branch_id or not student_name:
+        raise HTTPException(status_code=400, detail="Missing student or branch.")
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT parent_contact FROM students WHERE branch_id=%s AND name=%s", (branch_id, student_name))
+        row = cur.fetchone()
+        if not row or not row[0]:
+            return {"status": "skipped", "reason": "No parent contact found."}
+        parent_contact = row[0]
+        # Ensure phone number is in international format (e.g., +91...)
+        if not parent_contact.startswith('+'):
+            parent_contact = '+91' + parent_contact  # Assume India if no country code
+        msg = f"Attendance Alert: Your ward {student_name} was marked ABSENT on {date}. Please contact the institute for further details."
+        sent = send_whatsapp(parent_contact, msg)
+        audit_write(institute, branch_id, "WHATSAPP_ABSENCE", None, {"student": student_name, "date": date, "sent": sent})
+        return {"status": "sent" if sent else "failed"}
+    finally:
+        conn.close()
+
+
+@app.post("/api/whatsapp/send-fee-reminders")
+def send_fee_reminders(institute: CurrentInstitute = Depends(require_write_access)):
+    """Send WhatsApp reminders to parents whose fee due date is within 7 days."""
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        # Get students with fees due within 7 days (and not yet paid)
+        cur.execute("""
+            SELECT s.name, s.parent_contact, f.due_date, f.amount_inr
+            FROM fees f
+            JOIN students s ON s.id = f.student_id
+            WHERE f.branch_id IN (SELECT id FROM branches WHERE tenant_id=%s)
+              AND f.status != 'Paid'
+              AND f.due_date::date - CURRENT_DATE <= 7
+              AND f.due_date::date >= CURRENT_DATE
+        """, (institute.id,))
+        rows = cur.fetchall()
+        sent_count = 0
+        for name, contact, due, amount in rows:
+            if not contact:
+                continue
+            if not contact.startswith('+'):
+                contact = '+91' + contact
+            msg = f"Fee Reminder: Your ward {name} has a pending fee of ₹{amount} due on {due}. Please clear the dues at the earliest."
+            if send_whatsapp(contact, msg):
+                sent_count += 1
+        audit_write(institute, None, "WHATSAPP_FEE_REMINDERS", None, {"sent": sent_count})
+        return {"sent": sent_count}
     finally:
         conn.close()
 
