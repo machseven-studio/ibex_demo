@@ -11,9 +11,9 @@ services:
         fromDatabase:
           name: ibex-postgres
           property: connectionString
-    # Add this to force Python version:
-    buildFilter:
-      paths:
-        - main.py
-        - requirements.txt
-        - runtime.txt
+
+databases:
+  - name: ibex-postgres
+    databaseName: ibex
+    user: ibex
+    plan: free
