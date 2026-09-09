@@ -950,196 +950,57 @@ RECORD_FIELDS = {
 RECORD_HAS_DOCUMENT = {"classrooms", "attendance", "invigilation", "fees"}
 
 
-@app.post("/api/records/{module}")
-async def add_record(
-    module: str,
-    branch_id: int = Form(...),
-    data_json: str = Form(...),
-    file: UploadFile = File(None),
-    institute: CurrentInstitute = Depends(require_write_access),
-):
-    if module not in VALID_MODULES:
-        raise HTTPException(status_code=400, detail="Invalid module")
-    check_module_access(institute, module)
-    verify_branch_ownership(branch_id, institute.id)
-
-    data = json.loads(data_json)
-    doc_filename = save_upload(file) if file else None
-
-    fields = RECORD_FIELDS[module]
-    columns = ["branch_id"] + fields + (["document"] if module in RECORD_HAS_DOCUMENT else [])
-    values = [branch_id] + [data.get(f) for f in fields] + ([doc_filename] if module in RECORD_HAS_DOCUMENT else [])
-    placeholders = ", ".join("%s" for _ in columns)
-
+# ================================
+# INSTITUTE-WIDE SEARCH ENDPOINT (used by Parallax on homepage)
+# ================================
+@app.get("/api/search/{branch_id}")
+def search_institute(branch_id: int, q: str = "", institute: CurrentInstitute = Depends(get_current_institute)):
+    verify_branch_read_access(branch_id, institute.id)
+    term = (q or "").strip()
+    if not term:
+        return {"results": []}
+    labels = {
+        "students": "Student Department",
+        "teachers": "Teacher Department",
+        "classrooms": "Classroom Department",
+        "syllabus": "Syllabus",
+        "attendance": "Attendance",
+        "fees": "Fees",
+        "invigilation": "Invigilation"
+    }
+    results = []
     conn = get_conn()
-    cursor = conn.cursor()
-    # module/columns come from our own fixed RECORD_FIELDS map, never from the
-    # request, so building the column list this way is not injectable.
-    cursor.execute(f"INSERT INTO {module} ({', '.join(columns)}) VALUES ({placeholders}) RETURNING id", values)
-    conn.commit()
-    record_id = cursor.fetchone()[0]
-    conn.close()
-    audit_write(institute, branch_id, "CREATE", None, {"module": module, "id": record_id, **data})
-    return {"id": record_id, "status": "success"}
-
-
-@app.patch("/api/records/{module}/{record_id}")
-async def edit_record(
-    module: str,
-    record_id: int,
-    data_json: str = Form(...),
-    file: UploadFile = File(None),
-    institute: CurrentInstitute = Depends(require_write_access),
-):
-    """Generic edit for any module - lets the user change any field on an
-    existing record, and optionally replace its attached document."""
-    if module not in VALID_MODULES:
-        raise HTTPException(status_code=400, detail="Invalid module")
-    check_module_access(institute, module)
-
-    conn = get_conn()
-    cursor = conn.cursor()
-    cursor.execute(
-        f"""SELECT {module}.* FROM {module}
-            JOIN branches ON branches.id = {module}.branch_id
-            WHERE {module}.id = %s AND branches.tenant_id = %s""",
-        (record_id, institute.id),
-    )
-    before_row = cursor.fetchone()
-    if not before_row:
-        conn.close()
-        raise HTTPException(status_code=404, detail="Record not found")
-
-    data = json.loads(data_json)
-    fields = RECORD_FIELDS[module]
-    set_clauses = [f"{f} = %s" for f in fields]
-    values = [data.get(f) for f in fields]
-
-    if module in RECORD_HAS_DOCUMENT and file:
-        set_clauses.append("document = %s")
-        values.append(save_upload(file))
-
-    cursor.execute(f"UPDATE {module} SET {', '.join(set_clauses)} WHERE id = %s", (*values, record_id))
-    conn.commit()
-    conn.close()
-    audit_write(institute, before_row["branch_id"], "UPDATE", dict(before_row), {"module": module, "id": record_id, **data})
-    return {"id": record_id, "status": "updated"}
-
-
-@app.delete("/api/records/{module}/{record_id}")
-def delete_record(module: str, record_id: int, institute: CurrentInstitute = Depends(require_write_access)):
-    if module not in VALID_MODULES:
-        raise HTTPException(status_code=400, detail="Invalid module")
-    check_module_access(institute, module)
-
-    conn = get_conn()
-    cursor = conn.cursor()
-    # Confirm the record belongs to a branch owned by this institute before deleting.
-    cursor.execute(
-        f"""SELECT {module}.* FROM {module}
-            JOIN branches ON branches.id = {module}.branch_id
-            WHERE {module}.id = %s AND branches.tenant_id = %s""",
-        (record_id, institute.id),
-    )
-    before_row = cursor.fetchone()
-    if not before_row:
-        conn.close()
-        raise HTTPException(status_code=404, detail="Record not found")
-
-    cursor.execute(f"DELETE FROM {module} WHERE id = %s", (record_id,))
-    conn.commit()
-    conn.close()
-    audit_write(institute, before_row["branch_id"], "DELETE", dict(before_row), None)
-    return {"status": "deleted"}
-
-
-# Column layout expected in a bulk-import CSV for each module (document/email
-# intentionally excluded - those are handled per-record, not in bulk).
-BULK_IMPORT_COLUMNS = {
-    "students": ["name", "batch", "roll_number", "parent_contact"],
-    "teachers": ["name", "subject", "contact_number"],
-    "classrooms": ["room_no", "capacity"],
-    "syllabus": ["subject", "topic", "teacher_name", "num_lectures", "lecture_date"],
-    "attendance": ["student_name", "date", "status"],
-    "invigilation": ["teacher_name", "exam_date", "room"],
-    "fees": ["student_name", "amount_inr", "status", "due_date", "utr_reference"],
-}
-
-
-@app.post("/api/records/{module}/bulk")
-async def bulk_import_records(
-    module: str,
-    branch_id: int = Form(...),
-    file: UploadFile = File(...),
-    institute: CurrentInstitute = Depends(require_write_access),
-):
-    """Lets a user drop in a CSV of many rows at once, instead of typing each
-    record in individually through the Add Record form."""
-    if module not in VALID_MODULES:
-        raise HTTPException(status_code=400, detail="Invalid module")
-    check_module_access(institute, module)
-    verify_branch_ownership(branch_id, institute.id)
-
-    if not (file.filename or "").lower().endswith(".csv"):
-        raise HTTPException(status_code=400, detail="Please upload a .csv file")
-
-    import csv
-    import io
-
-    raw = await file.read()
-    if len(raw) > MAX_UPLOAD_BYTES:
-        raise HTTPException(status_code=400, detail="File too large (max 5 MB)")
-
     try:
-        text = raw.decode("utf-8-sig")
-    except UnicodeDecodeError:
-        raise HTTPException(status_code=400, detail="Could not read file - please save it as UTF-8 CSV")
-
-    reader = csv.DictReader(io.StringIO(text))
-    expected_cols = BULK_IMPORT_COLUMNS[module]
-    if not reader.fieldnames or not set(expected_cols).issubset(set(c.strip() for c in reader.fieldnames)):
-        raise HTTPException(
-            status_code=400,
-            detail=f"CSV must have these column headers: {', '.join(expected_cols)}",
-        )
-
-    conn = get_conn()
-    cursor = conn.cursor()
-    inserted = 0
-    for row in reader:
-        row = {k.strip(): (v.strip() if isinstance(v, str) else v) for k, v in row.items()}
-        if not any(row.values()):
-            continue  # skip blank rows
-
-        if module == 'students':
-            cursor.execute("INSERT INTO students (branch_id, name, batch, roll_number, parent_contact) VALUES (%s, %s, %s, %s, %s)",
-                           (branch_id, row.get('name'), row.get('batch'), row.get('roll_number'), row.get('parent_contact')))
-        elif module == 'teachers':
-            cursor.execute("INSERT INTO teachers (branch_id, name, subject, contact_number) VALUES (%s, %s, %s, %s)",
-                           (branch_id, row.get('name'), row.get('subject'), row.get('contact_number')))
-        elif module == 'classrooms':
-            cursor.execute("INSERT INTO classrooms (branch_id, room_no, capacity, building, document) VALUES (%s, %s, %s, %s, %s)",
-                           (branch_id, row.get('room_no'), row.get('capacity'), None, None))
-        elif module == 'syllabus':
-            cursor.execute("INSERT INTO syllabus (branch_id, subject, topic, teacher_name, num_lectures, lecture_date) VALUES (%s, %s, %s, %s, %s, %s)",
-                           (branch_id, row.get('subject'), row.get('topic'), row.get('teacher_name'), row.get('num_lectures'), row.get('lecture_date')))
-        elif module == 'attendance':
-            cursor.execute("INSERT INTO attendance (branch_id, student_name, date, status, document) VALUES (%s, %s, %s, %s, %s)",
-                           (branch_id, row.get('student_name'), row.get('date'), row.get('status'), None))
-        elif module == 'invigilation':
-            cursor.execute("INSERT INTO invigilation (branch_id, teacher_name, exam_date, room, document) VALUES (%s, %s, %s, %s, %s)",
-                           (branch_id, row.get('teacher_name'), row.get('exam_date'), row.get('room'), None))
-        elif module == 'fees':
-            cursor.execute("INSERT INTO fees (branch_id, student_name, amount_inr, status, due_date, document, utr_reference) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                           (branch_id, row.get('student_name'), row.get('amount_inr'), row.get('status'), row.get('due_date'), None, row.get('utr_reference')))
-        inserted += 1
-
-    conn.commit()
-    conn.close()
-    if inserted == 0:
-        raise HTTPException(status_code=400, detail="No valid rows found in that file")
-    audit_write(institute, branch_id, "BULK_IMPORT", None, {"module": module, "inserted": inserted})
-    return {"status": "success", "inserted": inserted}
+        cur = conn.cursor()
+        for module in ("students", "teachers", "classrooms", "syllabus", "attendance", "fees", "invigilation"):
+            head = MODULE_HEAD.get(module)
+            if not institute.is_owner and head not in (institute.allowed_modules or []):
+                continue
+            fields = RECORD_FIELDS[module]
+            clauses = " OR ".join(f"CAST({f} AS TEXT) ILIKE %s" for f in fields)
+            branch_where = "branch_id IN (SELECT id FROM branches WHERE tenant_id = %s)" if branch_id == 0 else "branch_id = %s"
+            first_param = institute.id if branch_id == 0 else branch_id
+            params = [first_param] + [f"%{term}%"] * len(fields)
+            cur.execute(f"SELECT * FROM {module} WHERE {branch_where} AND ({clauses}) ORDER BY id DESC LIMIT 4", params)
+            for row in cur.fetchall():
+                item = dict(row)
+                primary = item.get("name") or item.get("student_name") or item.get("subject") or item.get("room_no") or item.get("teacher_name") or "Record"
+                parts = []
+                for key in fields:
+                    value = item.get(key)
+                    if value not in (None, "") and str(value) != str(primary):
+                        parts.append(f"{key.replace('_', ' ')}: {value}")
+                    if len(parts) >= 4:
+                        break
+                results.append({
+                    "module": module,
+                    "label": labels[module],
+                    "primary": str(primary),
+                    "details": " · ".join(parts)
+                })
+        return {"results": results[:24]}
+    finally:
+        conn.close()
 
 
 # ---------------------------------------------------------------------------
@@ -2499,5 +2360,3 @@ def final_delete_exam_history(history_id:int,institute:CurrentInstitute=Depends(
         if not cur.fetchone(): raise HTTPException(status_code=404,detail='History record not found')
         conn.commit(); return {'status':'deleted'}
     finally: conn.close()
-
-
