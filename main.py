@@ -1,6 +1,8 @@
 # main.py
+import csv
 import hashlib
 import hmac
+import io
 import json
 import os
 import random
@@ -812,7 +814,54 @@ def delete_branch(branch_id: int, institute: CurrentInstitute = Depends(require_
 
 
 # ---------------------------------------------------------------------------
-# Generic records
+# Generic records — column definitions
+# ---------------------------------------------------------------------------
+
+RECORD_FIELDS = {
+    "students": ["name", "batch", "roll_number", "parent_contact"],
+    "teachers": ["name", "subject", "contact_number"],
+    "classrooms": ["room_no", "capacity", "building"],
+    "syllabus": ["subject", "topic", "teacher_name", "num_lectures", "lecture_date"],
+    "attendance": ["student_name", "date", "status"],
+    "invigilation": ["teacher_name", "exam_date", "room"],
+    "fees": ["student_name", "amount_inr", "status", "due_date", "utr_reference"],
+}
+RECORD_HAS_DOCUMENT = {"classrooms", "attendance", "invigilation", "fees"}
+
+BULK_IMPORT_COLUMNS = {
+    "students": ["name", "batch", "roll_number", "parent_contact"],
+    "teachers": ["name", "subject", "contact_number"],
+    "classrooms": ["room_no", "capacity"],
+    "syllabus": ["subject", "topic", "teacher_name", "num_lectures", "lecture_date"],
+    "attendance": ["student_name", "date", "status"],
+    "invigilation": ["teacher_name", "exam_date", "room"],
+    "fees": ["student_name", "amount_inr", "status", "due_date"],
+}
+
+
+def _coerce_record_value(module: str, key: str, value):
+    """Convert form/CSV string values into the right Python type for the DB column."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        value = value.strip()
+        if value == "":
+            return None
+    if key in ("capacity", "num_lectures"):
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return None
+    if key == "amount_inr":
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
+    return value
+
+
+# ---------------------------------------------------------------------------
+# Generic records — GET (list)
 # ---------------------------------------------------------------------------
 
 @app.get("/api/records/{module}/{branch_id}")
@@ -839,6 +888,240 @@ def get_records(module: str, branch_id: int, search: str = "", sort: str = "id",
     conn.close()
     return records
 
+
+# ---------------------------------------------------------------------------
+# Generic records — BULK IMPORT (must be declared before the {record_id} routes)
+# ---------------------------------------------------------------------------
+
+@app.post("/api/records/{module}/bulk")
+async def bulk_import_records(
+    module: str,
+    branch_id: int = Form(...),
+    file: UploadFile = File(...),
+    institute: CurrentInstitute = Depends(require_write_access),
+):
+    if module not in VALID_MODULES:
+        raise HTTPException(status_code=400, detail="Invalid module")
+    check_module_access(institute, module)
+    verify_branch_ownership(branch_id, institute.id)
+    if module not in BULK_IMPORT_COLUMNS:
+        raise HTTPException(status_code=400, detail=f"Bulk import isn't supported for {module}.")
+
+    expected = BULK_IMPORT_COLUMNS[module]
+    raw = await file.read()
+    if not raw:
+        raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=400, detail="CSV must be UTF-8 encoded.")
+
+    reader = csv.DictReader(io.StringIO(text))
+    if not reader.fieldnames:
+        raise HTTPException(status_code=400, detail="CSV has no header row.")
+
+    # Map lowercased header -> actual header text so we tolerate whitespace/case
+    normalized = {}
+    for h in reader.fieldnames:
+        if h is None:
+            continue
+        normalized[h.strip().lower()] = h
+    missing = [c for c in expected if c not in normalized]
+    if missing:
+        raise HTTPException(
+            status_code=400,
+            detail=f"CSV is missing required column(s): {', '.join(missing)}. "
+                   f"Expected header: {', '.join(expected)}",
+        )
+
+    conn = get_conn()
+    cur = conn.cursor()
+    inserted = 0
+    try:
+        for row in reader:
+            data = {}
+            for col in expected:
+                raw_header = normalized[col]
+                value = row.get(raw_header)
+                data[col] = _coerce_record_value(module, col, value)
+            cols = ["branch_id"] + expected
+            values = [branch_id] + [data[c] for c in expected]
+            placeholders = ", ".join(["%s"] * len(cols))
+            cur.execute(
+                f"INSERT INTO {module} ({', '.join(cols)}) VALUES ({placeholders})",
+                values,
+            )
+            inserted += 1
+        conn.commit()
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Bulk import failed: {exc}")
+    finally:
+        conn.close()
+
+    audit_write(institute, branch_id, "BULK_IMPORT", None, {"module": module, "inserted": inserted})
+    return {"inserted": inserted}
+
+
+# ---------------------------------------------------------------------------
+# Generic records — CREATE
+# ---------------------------------------------------------------------------
+
+@app.post("/api/records/{module}")
+async def create_record(
+    module: str,
+    branch_id: int = Form(...),
+    data_json: str = Form(...),
+    document: UploadFile | None = File(None),
+    institute: CurrentInstitute = Depends(require_write_access),
+):
+    if module not in VALID_MODULES:
+        raise HTTPException(status_code=400, detail="Invalid module")
+    check_module_access(institute, module)
+    verify_branch_ownership(branch_id, institute.id)
+
+    try:
+        data = json.loads(data_json)
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="data_json is not valid JSON")
+    if not isinstance(data, dict):
+        raise HTTPException(status_code=400, detail="data_json must be a JSON object")
+
+    allowed = set(RECORD_FIELDS[module])
+    clean = {k: _coerce_record_value(module, k, v) for k, v in data.items() if k in allowed}
+
+    if document is not None and getattr(document, "filename", None):
+        if module in RECORD_HAS_DOCUMENT:
+            clean["document"] = save_upload(document)
+
+    if not clean:
+        raise HTTPException(status_code=400, detail="No valid fields to insert.")
+
+    cols = ["branch_id"] + list(clean.keys())
+    placeholders = ", ".join(["%s"] * len(cols))
+    values = [branch_id] + list(clean.values())
+
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            f"INSERT INTO {module} ({', '.join(cols)}) VALUES ({placeholders}) RETURNING id",
+            values,
+        )
+        new_id = cur.fetchone()[0]
+        conn.commit()
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to create record: {exc}")
+    finally:
+        conn.close()
+
+    audit_write(institute, branch_id, "CREATE_RECORD", None, {"module": module, "id": new_id})
+    return {"id": new_id, "status": "created"}
+
+
+# ---------------------------------------------------------------------------
+# Generic records — UPDATE
+# ---------------------------------------------------------------------------
+
+@app.patch("/api/records/{module}/{record_id}")
+async def update_record(
+    module: str,
+    record_id: int,
+    data_json: str = Form(...),
+    document: UploadFile | None = File(None),
+    institute: CurrentInstitute = Depends(require_write_access),
+):
+    if module not in VALID_MODULES:
+        raise HTTPException(status_code=400, detail="Invalid module")
+    check_module_access(institute, module)
+
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            f"SELECT * FROM {module} WHERE id = %s AND branch_id IN (SELECT id FROM branches WHERE tenant_id = %s)",
+            (record_id, institute.id),
+        )
+        existing = cur.fetchone()
+        if not existing:
+            raise HTTPException(status_code=404, detail="Record not found")
+
+        try:
+            data = json.loads(data_json)
+        except (TypeError, ValueError):
+            raise HTTPException(status_code=400, detail="data_json is not valid JSON")
+        if not isinstance(data, dict):
+            raise HTTPException(status_code=400, detail="data_json must be a JSON object")
+
+        allowed = set(RECORD_FIELDS[module])
+        clean = {k: _coerce_record_value(module, k, v) for k, v in data.items() if k in allowed}
+
+        if document is not None and getattr(document, "filename", None):
+            if module in RECORD_HAS_DOCUMENT:
+                clean["document"] = save_upload(document)
+
+        if not clean:
+            raise HTTPException(status_code=400, detail="Nothing to update.")
+
+        set_clause = ", ".join(f"{k} = %s" for k in clean.keys())
+        values = list(clean.values()) + [record_id]
+        cur.execute(f"UPDATE {module} SET {set_clause} WHERE id = %s", values)
+        conn.commit()
+    except HTTPException:
+        conn.rollback(); raise
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to update record: {exc}")
+    finally:
+        conn.close()
+
+    audit_write(institute, existing["branch_id"], "UPDATE_RECORD", dict(existing),
+                {"module": module, "id": record_id, "changes": clean})
+    return {"id": record_id, "status": "updated"}
+
+
+# ---------------------------------------------------------------------------
+# Generic records — DELETE
+# ---------------------------------------------------------------------------
+
+@app.delete("/api/records/{module}/{record_id}")
+def delete_record(
+    module: str,
+    record_id: int,
+    institute: CurrentInstitute = Depends(require_write_access),
+):
+    if module not in VALID_MODULES:
+        raise HTTPException(status_code=400, detail="Invalid module")
+    check_module_access(institute, module)
+
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            f"SELECT * FROM {module} WHERE id = %s AND branch_id IN (SELECT id FROM branches WHERE tenant_id = %s)",
+            (record_id, institute.id),
+        )
+        existing = cur.fetchone()
+        if not existing:
+            raise HTTPException(status_code=404, detail="Record not found")
+        cur.execute(f"DELETE FROM {module} WHERE id = %s", (record_id,))
+        conn.commit()
+    except HTTPException:
+        conn.rollback(); raise
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to delete record: {exc}")
+    finally:
+        conn.close()
+
+    audit_write(institute, existing["branch_id"], "DELETE_RECORD", dict(existing), {"module": module, "id": record_id})
+    return {"status": "deleted"}
+
+
+# ---------------------------------------------------------------------------
+# File upload helpers & endpoints
+# ---------------------------------------------------------------------------
 
 def _sniff_mime(contents: bytes, ext: str) -> str:
     if contents[:4] == b"%PDF": return "application/pdf"
@@ -901,17 +1184,9 @@ def get_uploaded_file(filename: str, institute: CurrentInstitute = Depends(get_c
     return FileResponse(path)
 
 
-RECORD_FIELDS = {
-    "students": ["name", "batch", "roll_number", "parent_contact"],
-    "teachers": ["name", "subject", "contact_number"],
-    "classrooms": ["room_no", "capacity", "building"],
-    "syllabus": ["subject", "topic", "teacher_name", "num_lectures", "lecture_date"],
-    "attendance": ["student_name", "date", "status"],
-    "invigilation": ["teacher_name", "exam_date", "room"],
-    "fees": ["student_name", "amount_inr", "status", "due_date", "utr_reference"],
-}
-RECORD_HAS_DOCUMENT = {"classrooms", "attendance", "invigilation", "fees"}
-
+# ---------------------------------------------------------------------------
+# Search across modules
+# ---------------------------------------------------------------------------
 
 @app.get("/api/search/{branch_id}")
 def search_institute(branch_id: int, q: str = "", institute: CurrentInstitute = Depends(get_current_institute)):
